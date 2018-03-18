@@ -6,3 +6,7 @@ __pycache__/
 .idea/
 *.iml
 
+# virtualenv
+.venv/
+venv/
+ENV/

@@ -26,8 +26,7 @@ class UserRelationship(db.Model):
     source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     destination_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    relation = db.Column(db.String(64), nullable=False)
-    status = db.Column(db.Boolean, default=False)
+    relationship = db.Column(db.String(64), nullable=False)
     time = db.Column(db.DateTime(), default=datetime.now)
 
     source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('relationship_source', lazy='dynamic'))
@@ -45,3 +44,32 @@ class Transaction(db.Model):
 
     source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('transaction_source', lazy='dynamic'))
     destination = db.relationship('User', foreign_keys=[destination_id], backref=db.backref('transaction_destination', lazy='dynamic'))
+
+
+class PairApplication(db.Model):
+    __tablename__ = 'pair_application'
+    id = db.Column(db.Integer, primary_key=True)
+    source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    destination_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    type = db.Column(db.String(64), nullable=False)  # 1.lover 2.couple
+    status = db.Column(db.String(64), nullable=False)  # 1.waiting 2.approve 3.disapprove
+    apply_time = db.Column(db.DateTime(), default=datetime.now)
+    confirm_time = db.Column(db.DateTime(), default=None)
+
+    source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('relationship_source', lazy='dynamic'))
+    destination = db.relationship('User', foreign_keys=[destination_id], backref=db.backref('relationship_destination', lazy='dynamic'))
+
+
+class QueryApplication(db.Model):
+    __tablename__ = 'query_application'
+    id = db.Column(db.Integer, primary_key=True)
+    source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    destination_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    status = db.Column(db.String(64), nullable=False)  # 1.waiting 2.approve 3.disapprove
+    apply_time = db.Column(db.DateTime(), default=datetime.now)
+    confirm_time = db.Column(db.DateTime(), default=None)
+
+    source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('relationship_source', lazy='dynamic'))
+    destination = db.relationship('User', foreign_keys=[destination_id], backref=db.backref('relationship_destination', lazy='dynamic'))
