@@ -7,7 +7,7 @@
 
     <view>
         <view class="weui-cells__title">个人详情</view>
-        <view class="weui-cells weui-cells_after-title">
+        <view wx:if="{{login}}" class="weui-cells weui-cells_after-title">
             <view class="weui-cell weui-cell_input">
                 <view class="weui-cell__hd">
                     <view class="weui-label">姓名</view>
@@ -41,9 +41,14 @@
                 </view>
             </view>
         </view>
+        <view wx:else>
+            <navigator url='../register/register'>
+                <button class="weui-btn" type="primary">点击注册</button>
+            </navigator>
+        </view>
     </view>
 
-    <view class="page__bd" style="margin-top: 20px;">
+    <view wx:if="{{login}}" class="page__bd" style="margin-top: 20px;">
         <view class="weui-cells__title">应用</view>
         <view class="weui-grids">
             <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../logs/logs'>
@@ -55,7 +60,7 @@
             <navigator class='userinfo-nav' hover-class="weui-grid_active">
                 配对查询
             </navigator>
-            <navigator class='userinfo-nav' hover-class="weui-grid_active">
+            <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../message/message'>
                 系统消息
             </navigator>
         </view>

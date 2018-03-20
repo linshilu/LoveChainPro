@@ -7,7 +7,7 @@ Page({
         motto: 'Hello World',
         userInfo: {},
         user: {},
-        grids: [0, 1, 2, 3]
+        login: true
     },
     //事件处理函数
     bindViewTap: function () {
@@ -30,8 +30,8 @@ Page({
             header: { 'cookie': app.globalData.cookie },
             data: {},
             success: res => {
-                console.log(res.data);
                 this.setData({
+                    login: true,
                     user: res.data
                 });
             }

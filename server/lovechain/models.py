@@ -40,6 +40,11 @@ def load_user(user_id):
 
 
 class UserRelationship(db.Model):
+    def __init__(self, source, destination, relationship):
+        self.source = source
+        self.destination = destination
+        self.relationship = relationship
+
     __tablename__ = 'user_relationship'
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -55,6 +60,11 @@ class UserRelationship(db.Model):
 
 
 class Transaction(db.Model):
+    def __init__(self, source, destination, value):
+        self.source = source
+        self.destination = destination
+        self.value = value
+
     __tablename__ = 'transaction'
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -69,13 +79,18 @@ class Transaction(db.Model):
 
 
 class PairApplication(db.Model):
+    def __init__(self, source, destination, type):
+        self.source = source
+        self.destination = destination
+        self.type = type
+
     __tablename__ = 'pair_application'
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     destination_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     type = db.Column(db.Integer, nullable=False)  # 1.lover 2.couple
-    status = db.Column(db.Integer, nullable=False)  # 1.waiting 2.approve 3.disapprove
+    status = db.Column(db.Integer, default=1)  # 1.waiting 2.approve 3.disapprove
     apply_time = db.Column(db.DateTime(), default=datetime.now)
     confirm_time = db.Column(db.DateTime(), default=None)
 
@@ -107,3 +122,27 @@ class QueryApplication(db.Model):
     STATUS_WAITING = 1
     STATUS_APPROVE = 2
     STATUS_DISAPPROVE = 3
+
+
+class Message(db.Model):
+    __tablename__ = 'message'
+    id = db.Column(db.Integer, primary_key=True)
+    source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    destination_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    status = db.Column(db.Integer, default=1)  # 1.unread 2.read
+    type = db.Column(db.Integer, nullable=False)  # 1.pair 2.unpair 3.query 4.transaction
+    associated_id = db.Column(db.Integer)
+    content = db.Column(db.String(256), nullable=False)
+    time = db.Column(db.DateTime(), default=datetime.now)
+
+    source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('message_source', lazy='dynamic'))
+    destination = db.relationship('User', foreign_keys=[destination_id],
+                                  backref=db.backref('message_destination', lazy='dynamic'))
+
+    STATUS_UNREAD = 1
+    STATUS_READ = 2
+    TYPE_PAIR = 1
+    TYPE_UNPAIR = 2
+    TYPE_QUERY = 3
+    TYPE_TRANSACTION = 4
