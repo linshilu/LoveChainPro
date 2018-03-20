@@ -3,16 +3,24 @@
 from datetime import datetime
 
 from flask import request, jsonify
+from flask_login import current_user
 
 from . import main
 from .. import db
 from ..models import User, PairApplication, UserRelationship, Transaction
 
 
-@main.route('/')
+@main.route('/index/', methods=['POST'])
 def index():
-    User.query.all()
-    return '200'
+    # user = current_user
+    user = User.query.filter_by(id=2).first()
+    data = {
+        'name': user.name,
+        'gender': '女' if user.gender else '男',
+        'love_status': user.love_status,
+        'balance': user.balance
+    }
+    return jsonify(data)
 
 
 @main.route('/register/')

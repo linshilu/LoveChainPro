@@ -26,8 +26,8 @@ CREATE TABLE `pair_application` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `source_id` int(11) DEFAULT NULL,
   `destination_id` int(11) DEFAULT NULL,
-  `type` varchar(64) NOT NULL,
-  `status` varchar(64) NOT NULL,
+  `type` int(11) NOT NULL,
+  `status` int(11) NOT NULL,
   `apply_time` datetime DEFAULT NULL,
   `confirm_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -58,7 +58,7 @@ CREATE TABLE `query_application` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `source_id` int(11) DEFAULT NULL,
   `destination_id` int(11) DEFAULT NULL,
-  `status` varchar(64) NOT NULL,
+  `status` int(11) NOT NULL,
   `apply_time` datetime DEFAULT NULL,
   `confirm_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -121,7 +121,7 @@ CREATE TABLE `user` (
   `gender` tinyint(1) DEFAULT NULL,
   `phone` varchar(64) NOT NULL,
   `id_number` varchar(64) NOT NULL,
-  `love_status` varchar(64) NOT NULL,
+  `love_status` int(11) NOT NULL,
   `balance` int(11) NOT NULL,
   `create_time` datetime DEFAULT NULL,
   `open_id` varchar(64) DEFAULT NULL,
@@ -177,4 +177,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-18 23:38:12
+-- Dump completed on 2018-03-20 18:02:01

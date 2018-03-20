@@ -1,13 +1,63 @@
 <!--index.wxml-->
-<view class="container">
-  <view class="userinfo">
-    <button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
-    <block wx:else>
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" background-size="cover"></image>
-      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-    </block>
-  </view>
-  <view class="usermotto">
-    <text class="user-motto">{{motto}}</text>
-  </view>
+<view class="page">
+    <view class="userinfo">
+        <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" background-size="cover"></image>
+        <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+    </view>
+
+    <view>
+        <view class="weui-cells__title">个人详情</view>
+        <view class="weui-cells weui-cells_after-title">
+            <view class="weui-cell weui-cell_input">
+                <view class="weui-cell__hd">
+                    <view class="weui-label">姓名</view>
+                </view>
+                <view class="weui-cell__bd">
+                    <text class="weui-input">{{user.name}}</text>
+                </view>
+            </view>
+            <view class="weui-cell weui-cell_input">
+                <view class="weui-cell__hd">
+                    <view class="weui-label">性别</view>
+                </view>
+                <view class="weui-cell__bd">
+                    <text class="weui-input">{{user.gender}}</text>
+                </view>
+            </view>
+            <view class="weui-cell weui-cell_input">
+                <view class="weui-cell__hd">
+                    <view class="weui-label">婚恋状态</view>
+                </view>
+                <view class="weui-cell__bd">
+                    <text class="weui-input">{{user.love_status}}</text>
+                </view>
+            </view>
+            <view class="weui-cell weui-cell_input">
+                <view class="weui-cell__hd">
+                    <view class="weui-label">余额</view>
+                </view>
+                <view class="weui-cell__bd">
+                    <text class="weui-input">{{user.balance}}</text>
+                </view>
+            </view>
+        </view>
+    </view>
+
+    <view class="page__bd" style="margin-top: 20px;">
+        <view class="weui-cells__title">应用</view>
+        <view class="weui-grids">
+            <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../logs/logs'>
+                个人信息
+            </navigator>
+            <navigator class='userinfo-nav' hover-class="weui-grid_active">
+                配对申请
+            </navigator>
+            <navigator class='userinfo-nav' hover-class="weui-grid_active">
+                配对查询
+            </navigator>
+            <navigator class='userinfo-nav' hover-class="weui-grid_active">
+                系统消息
+            </navigator>
+        </view>
+    </view>
 </view>
