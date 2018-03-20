@@ -1,0 +1,87 @@
+<!--pages/unpair/unpair.wxml-->
+<view class="page">
+    <view class="page__bd">
+        <view class="userinfo">
+            <button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取微信头像昵称 </button>
+            <block wx:else>
+                <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" background-size="cover"></image>
+                <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+            </block>
+        </view>
+
+        <form bindsubmit="formSubmit">
+            <view class="weui-cells weui-cells_after-title">
+                <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">姓名</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input class="weui-input" name="userName" type="text" bindinput="userNameInput" placeholder='请输入姓名' value='{{myUserInfo.name}}' auto-focus/>
+                    </view>
+                </view>
+
+                <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">性别</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input class="weui-input" name="userGender" type="text" bindinput="userGenderInput" placeholder="请输入性别" value='{{myUserInfo.gender}}' />
+                    </view>
+                </view>
+
+                <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">手机号</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input class="weui-input" name="userPhone" type="number" bindinput="userPhoneInput" placeholder="请输入手机号" value='{{myUserInfo.phone}}' />
+                    </view>
+                </view>
+
+                <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">身份证</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input class="weui-input" name="userIDCard" type="idcard" bindinput="userIDCardInput" placeholder="请输入身份证" value='{{myUserInfo.IDCard}}' />
+                    </view>
+                </view>
+
+                <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">情感状态</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input class="weui-input" name="userLoveStatus" type="text" bindinput="userLoveStatusInput" placeholder="单身" value='{{myUserInfo.loveStatus}}' />
+                    </view>
+                </view>
+
+                <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">余额</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input class="weui-input" name="userBalance" type="number" bindinput="userBalanceInput" placeholder="0" value='{{myUserInfo.balance}}' disabled='true' />
+                    </view>
+                </view>
+
+                <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">配偶姓名</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input class="weui-input" name="mateName" type="text" bindinput="mateNameInput" placeholder="无" value='{{myUserInfo.mateName}}' disabled='true' />
+                    </view>
+                </view>
+
+            </view>
+
+            <view class="page__bd page__bd_spacing">
+                <view class="button-sp-area">
+                    <button class="weui-btn" type="primary" formType="submit">Submit</button>
+                </view>
+            </view>
+
+        </form>
+    </view>
+</view>

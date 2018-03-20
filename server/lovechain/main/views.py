@@ -8,7 +8,8 @@ from flask_login import current_user, login_user
 
 from . import main
 from .. import db
-from ..models import User, PairApplication, UserRelationship, Transaction, Message
+from ..models import User, PairApplication, UnpairApplication, UserRelationship, Transaction, Message
+
 
 
 @main.route('/index/', methods=['POST'])
@@ -156,10 +157,81 @@ def pair_lock_confirm():
     return jsonify(data)
 
 
-@main.route('/pair/unlock/')
-def pair_unlock():
-    pass
+@main.route('/pair/unlock/check/', methods=['POST'])
+def pair_unlock_check():
 
+    src_user = current_user
+    #dest_user = src_user.relationship_source.first or src_user.relationship_destination.first
+
+    phone_number = src_user.phone
+
+    # TODO 发送手机验证码
+
+    data = {'status': 'success'}
+    return jsonify(data)
+
+@main.route('/pair/unlock/process/', methods=['POST'])
+def pair_unlock_process():
+
+    src_user = current_user
+    target_relationship = src_user.relationship_source.first \
+                          or src_user.relationship_destination.first
+    dest_user = src_user.relationship_source.first.destination.destination \
+                    or src_user.relationship_destination.first.source
+
+    un_pa = UnpairApplication()
+    un_pa.source = src_user
+    un_pa.destination = dest_user
+    un_pa.relationship = 'single'
+    un_pa.status = 'approve'
+    db.session.add(un_pa)
+
+    db.session.delete(target_relationship)
+
+    db.session.commit()
+
+    data = {'status': 'success'}
+    return jsonify(data)
+
+@main.route('/person/info/', methods=['GET'])
+def person_info_get():
+    #user = current_user
+    #dest_user = user.relationship_source.first.destination.destination \
+     #           or user.relationship_destination.first.source
+
+    data = {
+        'name':'1',#user.name,
+        'gender':'1',#user.gender,
+        'phone': 1,#user.phone,
+        'IDCard': 1,#user.id_number,
+        'loveStatus': '1',#user.love_status,
+        'balance': 1,#user.balance,
+        'mateName': '1',#dest_user.name
+    }
+
+
+
+    #print(data)
+
+    return jsonify(data)
+
+@main.route('/person/info', methods=['POST'])
+def person_info_save():
+    '''
+current_user.name = request.form.get('userName')
+    current_user.gender = request.form.get('userGender')
+    current_user.phone = request.form.get('userPhone')
+    current_user.id_number = request.form.get('userIDCard')
+    current_user.love_status = request.form.get('userLoveStatus')
+    current_user.name = request.form.get('userName')
+
+    db.session.commit()
+    '''
+    a=request.form.get('name')
+    print(a)
+
+    data = {'status': 'success'}
+    return jsonify(data)
 
 @main.route('/pair/query/')
 def pair_query():

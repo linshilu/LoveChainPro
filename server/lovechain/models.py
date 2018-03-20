@@ -95,6 +95,7 @@ class PairApplication(db.Model):
     confirm_time = db.Column(db.DateTime(), default=None)
 
     source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('pair_source', lazy='dynamic'))
+
     destination = db.relationship('User', foreign_keys=[destination_id],
                                   backref=db.backref('pair_destination', lazy='dynamic'))
 
@@ -103,6 +104,21 @@ class PairApplication(db.Model):
     STATUS_WAITING = 1
     STATUS_APPROVE = 2
     STATUS_DISAPPROVE = 3
+
+
+class UnpairApplication(db.Model):
+    __tablename__ = 'un_pair_application'
+
+    id = db.Column(db.Integer, primary_key=True)
+    source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    destination_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    type = db.Column(db.String(64), nullable=False)  # only single
+    status = db.Column(db.String(64), nullable=False)  # only approve
+    time = db.Column(db.DateTime(), default=datetime.now)
+
+    source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('unpair_source', lazy='dynamic'))
+    destination = db.relationship('User', foreign_keys=[destination_id], backref=db.backref('unpair_destination', lazy='dynamic'))
 
 
 class QueryApplication(db.Model):
@@ -146,3 +162,4 @@ class Message(db.Model):
     TYPE_UNPAIR = 2
     TYPE_QUERY = 3
     TYPE_TRANSACTION = 4
+    
