@@ -1,10 +1,11 @@
-#! /usr/bin/env python
+# ! /usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from flask import request, jsonify
-from flask_login import current_user
+from flask import request, jsonify, session
+from flask_login import current_user, login_user
 
+import requests
 from . import main
 from .. import db
 from ..models import User, PairApplication, UserRelationship, Transaction
@@ -23,9 +24,72 @@ def index():
     return jsonify(data)
 
 
-@main.route('/register/')
+@main.route('/register/', methods=['POST'])
 def register():
-    pass
+    name = request.form.get('name')
+    gender = request.form.get('gender')
+    id_number = request.form.get('id_number')
+    phone = request.form.get('phone')
+    code = request.form.get('code')
+
+    if (name and gender and id_number and phone and code) is None:
+        return jsonify(status='fail', msg='参数缺失，注册失败')
+
+    try:
+        response = requests.get(url='https://api.weixin.qq.com/sns/jscode2session',
+                                params={'appid': '',
+                                        'secret': '',
+                                        'js_code': code,
+                                        'grant_type': 'authorization_code'}, timeout=10)
+        response.raise_for_status()
+        result = response.json()
+    except requests.RequestException:
+        return jsonify(status='fail', msg='无法连接微信服务器')
+
+    if result.get('errcode'):
+        return jsonify(status='fail', msg='微信登陆错误')
+
+    open_id = result.get('openid')
+    session_key = result.get('session_key')
+    session['session_key'] = session_key
+
+    curr_user = User(name, gender, id_number, phone, open_id)
+    login_user(curr_user)
+    curr_user.last_login_time = datetime.now()
+    db.session.commit()
+    return jsonify(status='success')
+
+
+@main.route('/login/', methods=['POST'])
+def login():
+    code = request.form.get('code')
+    if not code:
+        return jsonify(status='fail', msg='参数缺失')
+    try:
+        response = requests.get(url='https://api.weixin.qq.com/sns/jscode2session',
+                                params={'appid': '',
+                                        'secret': '',
+                                        'js_code': code,
+                                        'grant_type': 'authorization_code'}, timeout=10)
+        response.raise_for_status()
+        result = response.json()
+    except requests.RequestException:
+        return jsonify(status='fail', msg='无法连接微信服务器')
+
+    if result.get('errcode'):
+        return jsonify(status='fail', msg='微信登陆错误')
+
+    open_id = result.get('openid')
+    session_key = result.get('session_key')
+    session['session_key'] = session_key
+
+    curr_user = User.query.filter_by(open_id=open_id).first()
+    if not curr_user:
+        return jsonify(status='fail', msg='未注册')
+    login_user(curr_user)
+    curr_user.last_login_time = datetime.now()
+    db.session.commit()
+    return jsonify(status='success')
 
 
 @main.route('/pair/lock/list/', methods=['POST'])

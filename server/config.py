@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from datetime import timedelta
 
 
 class Config:
@@ -11,6 +12,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or '!@#$%^&*12345678'
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    PERMANENT_SESSION_LIFETIME = timedelta(days=25)
 
     @staticmethod
     def init_app(app):
