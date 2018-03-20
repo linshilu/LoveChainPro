@@ -3,10 +3,19 @@
 
 from datetime import datetime
 
-from . import db
+from flask_login import UserMixin
+
+from . import db, login_manager
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
+    def __init__(self, name, gender, id_number, phone, open_id):
+        self.name = name
+        self.gender = gender
+        self.id_number = id_number
+        self.phone = phone
+        self.open_id = open_id
+
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
@@ -16,12 +25,18 @@ class User(db.Model):
     love_status = db.Column(db.Integer, nullable=False)  # 1.single 2. lover 3.couple
     balance = db.Column(db.Integer, nullable=False)
     create_time = db.Column(db.DateTime(), default=datetime.now)
+    last_login_time = db.Column(db.DateTime(), default=datetime.now)
 
     open_id = db.Column(db.String(64), default=None)
 
     LOVE_STATUS_SINGLE = 1
     LOVE_STATUS_LOVER = 2
     LOVER_STATUS_COUPLE = 3
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 class UserRelationship(db.Model):
@@ -33,8 +48,10 @@ class UserRelationship(db.Model):
     relationship = db.Column(db.String(64), nullable=False)
     time = db.Column(db.DateTime(), default=datetime.now)
 
-    source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('relationship_source', lazy='dynamic'))
-    destination = db.relationship('User', foreign_keys=[destination_id], backref=db.backref('relationship_destination', lazy='dynamic'))
+    source = db.relationship('User', foreign_keys=[source_id],
+                             backref=db.backref('relationship_source', lazy='dynamic'))
+    destination = db.relationship('User', foreign_keys=[destination_id],
+                                  backref=db.backref('relationship_destination', lazy='dynamic'))
 
 
 class Transaction(db.Model):
@@ -47,7 +64,8 @@ class Transaction(db.Model):
     time = db.Column(db.DateTime(), default=datetime.now)
 
     source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('transaction_source', lazy='dynamic'))
-    destination = db.relationship('User', foreign_keys=[destination_id], backref=db.backref('transaction_destination', lazy='dynamic'))
+    destination = db.relationship('User', foreign_keys=[destination_id],
+                                  backref=db.backref('transaction_destination', lazy='dynamic'))
 
 
 class PairApplication(db.Model):
@@ -62,7 +80,8 @@ class PairApplication(db.Model):
     confirm_time = db.Column(db.DateTime(), default=None)
 
     source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('pair_source', lazy='dynamic'))
-    destination = db.relationship('User', foreign_keys=[destination_id], backref=db.backref('pair_destination', lazy='dynamic'))
+    destination = db.relationship('User', foreign_keys=[destination_id],
+                                  backref=db.backref('pair_destination', lazy='dynamic'))
 
     TYPE_LOVER = 1
     TYPE_COUPLE = 2
@@ -82,7 +101,8 @@ class QueryApplication(db.Model):
     confirm_time = db.Column(db.DateTime(), default=None)
 
     source = db.relationship('User', foreign_keys=[source_id], backref=db.backref('query_source', lazy='dynamic'))
-    destination = db.relationship('User', foreign_keys=[destination_id], backref=db.backref('query_destination', lazy='dynamic'))
+    destination = db.relationship('User', foreign_keys=[destination_id],
+                                  backref=db.backref('query_destination', lazy='dynamic'))
 
     STATUS_WAITING = 1
     STATUS_APPROVE = 2
