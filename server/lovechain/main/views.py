@@ -234,11 +234,6 @@ current_user.name = request.form.get('userName')
     data = {'status': 'success'}
     return jsonify(data)
 
-@main.route('/pair/query/')
-def pair_query():
-    pass
-
-
 @main.route('/message/list/', methods=['POST'])
 def pair_lock_list():
     open_id = request.form.get('open_id')
@@ -280,3 +275,128 @@ def message_detail():
     db.session.commit()
     msg = {'id': msg_id, 'type': msg.type, 'content': msg.content, 'time': str(msg.time), 'source_name': msg.source.name}
     return jsonify(status='success', msg=msg)
+
+
+#用户A提交查询表单
+@main.route('/pair/query/apply/', methods = ['POST'])
+def pair_query_apply():
+    data = {}
+
+    src_open_id = request.form.get('src_open_id')
+    dst_open_id = request.form.get('dst_open_id')
+    src_user = User.query.filter_by(open_id=src_open_id).first()
+    dst_user = User.query.filter_by(open_id=dst_open_id).first()
+
+    #qa是最近一次A对B的查询
+    qa = QueryApplication.query.filter_by(source_id=src_user.id, destination_id=dst_user.id).order_by(QueryApplication.id.desc()).first()
+    
+    if qa == None or qa.status == QueryApplication.STATUS_DISAPPROVE:
+        src_user.balance -= 1
+        qa = QueryApplication(src_user, dst_user)
+        db.session.add(qa)
+        db.session.commit()
+        data['state'] = 'sent request'
+        # todo 使用模板消息发送通知到用户b
+        msg = Message()
+        msg.type = Message.TYPE_QUERY
+        msg.source = src_user
+        msg.destination = dst_user
+        msg.content = '%s想要查询您的过往配对记录' % src_user.name
+        db.session.add(msg)
+        db.session.commit()
+    elif qa.status == QueryApplication.STATUS_WAITING:
+        data['state'] = 'waiting'
+    elif qa.status == QueryApplication.STATUS_APPROVE:
+        data['state'] = 'approve'
+
+        #查看用户B的解锁记录
+        ua_list = UnpairApplication.query.filter((UnpairApplication.source_id==dst_user.id) | (UnpairApplication.destination_id==dst_user.id))
+        ua_data = []
+        for ua in ua_list:
+            tmp = {
+                'confirm_time': ua.time,
+                'source': '****',
+                'destination': '****'
+            }
+            if ua.source.id == dst_user.id:
+                tmp['source'] = ua.source.open_id
+            else:
+                tmp['destination'] = ua.destination.open_id
+            ua_data.append(tmp)
+        data['unlock_history'] = ua_data
+
+        #查看用户B的配对记录
+        pa_list = PairApplication.query.filter((PairApplication.source_id==dst_user.id) | (PairApplication.destination_id==dst_user.id))
+        pa_data = []
+        for pa in pa_list:
+            tmp = {
+                'confirm_time': pa.confirm_time,
+                'source': '****',
+                'destination': '****'
+            }
+            if pa.source.id == dst_user.id:
+                tmp['source'] = pa.source.open_id
+            else:
+                tmp['destination'] = pa.destination.open_id
+            pa_data.append(tmp)
+        data['lock_history'] = pa_data
+
+    data['status'] = 'success'
+    return jsonify(data)
+
+
+#用户B对某个查询需求进行确认
+@main.route('/pair/query/confirm/', methods = ['POST'])
+def pair_query_confirm():
+    data = {}
+    qa_id = request.form.get('qa_id')
+    confirm = int(request.form.get('confirm'))
+
+    if confirm == QueryApplication.STATUS_APPROVE:
+        data['state'] = 'approve'
+    else:
+        data['state'] = 'disapprove'
+
+    qa = QueryApplication.query.filter_by(id=qa_id).order_by(QueryApplication.id.desc()).first()
+    qa.status = confirm
+    qa.confirm_time=datetime.now()
+
+    db.session.add(qa)
+    db.session.commit()
+
+    # todo 使用模板消息发送通知到用户a
+    msg = Message()
+    msg.type = Message.TYPE_PAIR
+    msg.source = pa.destination
+    msg.destination = pa.source
+    msg.content = '%s%s了您的过往配对查询请求' % (qa.destination.name, '同意' if qa.status == PairApplication.STATUS_APPROVE else '拒绝')
+    db.session.add(msg)
+
+    data['status'] = 'success'
+    return jsonify(data)
+
+
+#用户查看自己历史的查询信息与被查询信息
+@main.route('/pair/query/history/', methods = ['POST'])
+def pair_query_histoy():
+    data = {}
+    qa_list_source = []
+    qa_list_destination = []
+    src_open_id = request.form.get('src_open_id')
+    user = User.query.filter_by(open_id = src_open_id).first()
+    for qa in user.query_source.all():
+        qa_list_source.append({'source_open_id':qa.source_open_id, 
+                               'destination_open_id':qa.destination_open_id,
+                               'status':qa.status,
+                               'apply_time':qa.apply_time,
+                               'confirm_time':qa.confirm_time})
+    for qa in user.query_destination.all():
+        qa_list_destination.append({'source_open_id':qa.source_open_id, 
+                                    'destination_open_id':qa.destination_open_id,
+                                    'status':qa.status,
+                                    'apply_time':qa.apply_time,
+                                    'confirm_time':qa.confirm_time})
+    data['query_list_source'] = qa_list_source
+    data['query_list_destination'] = qa_list_destination
+    data['status'] = 'success'
+    return jsonify(data)

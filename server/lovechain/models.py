@@ -122,6 +122,10 @@ class UnpairApplication(db.Model):
 
 
 class QueryApplication(db.Model):
+    def __init__(self, source, destination):
+        self.source = source
+        self.destination = destination
+
     __tablename__ = 'query_application'
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
