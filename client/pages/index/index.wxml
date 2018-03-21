@@ -57,7 +57,7 @@
             <navigator class='userinfo-nav' hover-class="weui-grid_active">
                 配对申请
             </navigator>
-            <navigator class='userinfo-nav' hover-class="weui-grid_active">
+            <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../search/search'>
                 配对查询
             </navigator>
             <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../message/message'>

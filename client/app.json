@@ -4,7 +4,8 @@
         "pages/register/register",
         "pages/logs/logs",
         "pages/message/message",
-        "pages/message_detail/message_detail"
+        "pages/message_detail/message_detail",
+        "pages/search/search"
     ],
     "window": {
         "backgroundTextStyle": "light",

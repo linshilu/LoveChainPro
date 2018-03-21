@@ -400,3 +400,18 @@ def pair_query_histoy():
     data['query_list_destination'] = qa_list_destination
     data['status'] = 'success'
     return jsonify(data)
+
+# 用户A发起对用户B的查询
+@main.route('/searchuser',methods=['POST'])
+def searchuser():
+    name = request.values.get('name')
+    phone = request.values.get('phone')
+    identitycard = request.values.get('identitycard')
+    print(name)
+    print(phone)
+    print(identitycard)
+
+    # todo
+    # 支付爱情币
+
+    return 'ok'
