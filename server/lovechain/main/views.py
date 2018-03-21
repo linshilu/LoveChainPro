@@ -1,6 +1,7 @@
 # ! /usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from time import sleep
 
 import requests
 from flask import request, jsonify, session
@@ -265,3 +266,17 @@ def pair_lock_list():
 
     data = {'status': 'success', 'data': msg_data}
     return jsonify(data)
+
+
+@main.route('/message/detail/', methods=['POST'])
+def message_detail():
+    msg_id = request.form.get('msg_id')
+
+    if not msg_id:
+        return jsonify(status='fail', msg='参数缺失')
+
+    msg = Message.query.filter_by(id=msg_id).first()
+    msg.status = 2
+    db.session.commit()
+    msg = {'id': msg_id, 'type': msg.type, 'content': msg.content, 'time': str(msg.time), 'source_name': msg.source.name}
+    return jsonify(status='success', msg=msg)

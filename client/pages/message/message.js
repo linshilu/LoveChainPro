@@ -8,7 +8,7 @@ Page({
 
     onLoad: function (options) {
         wx.request({
-            url: 'http://127.0.0.1/message/list/',
+            url: 'http://127.0.0.1:5000/message/list/',
             method: 'POST',
             data: {},
             success: res => {

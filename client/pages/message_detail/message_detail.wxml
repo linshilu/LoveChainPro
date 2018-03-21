@@ -1,0 +1,21 @@
+<view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
+    <view class="page__hd" >
+        <view class="page__title">发起方：{{msg.source_name}}</view>
+
+        <view class="page__desc">时间：{{msg.time}}</view>
+    </view>
+    <view class="page__bd">
+        <view class="weui-article">
+            <view class="weui-cells__title" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>通知内容</view>
+            <view class="weui-article__p" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>
+                <text style='font-size: 40rpx;'>{{msg.content}}</text>
+            </view>
+            <block wx:if="{{msg.type==1 || msg.type==3}}">
+                <view style='display: flex;flex-direction: row;'>
+                    <button type="warn" bindtap="confirmModel" id='refuse'>拒绝</button>
+                    <button type="primary" bindtap="confirmModel" id='confirm'>确定</button>
+                </view>
+            </block>
+        </view>
+    </view>
+</view>

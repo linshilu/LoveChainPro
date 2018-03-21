@@ -53,6 +53,7 @@ App({
         })
     },
     globalData: {
+        host: "http://127.0.0.1:5000",
         userInfo: null,
         cookie: null,
         is_reg: true

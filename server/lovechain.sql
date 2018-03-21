@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: lovechain
 -- ------------------------------------------------------
--- Server version	5.7.21-0ubuntu0.16.04.1
+-- Server version	5.7.21-0ubuntu0.17.10.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,6 +16,39 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `message`
+--
+
+DROP TABLE IF EXISTS `message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source_id` int(11) DEFAULT NULL,
+  `destination_id` int(11) DEFAULT NULL,
+  `status` int(11) DEFAULT NULL,
+  `type` int(11) NOT NULL,
+  `associated_id` int(11) DEFAULT NULL,
+  `content` varchar(256) NOT NULL,
+  `time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `source_id` (`source_id`),
+  KEY `destination_id` (`destination_id`),
+  CONSTRAINT `message_ibfk_1` FOREIGN KEY (`source_id`) REFERENCES `user` (`id`),
+  CONSTRAINT `message_ibfk_2` FOREIGN KEY (`destination_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `message`
+--
+
+LOCK TABLES `message` WRITE;
+/*!40000 ALTER TABLE `message` DISABLE KEYS */;
+/*!40000 ALTER TABLE `message` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `pair_application`
 --
 
@@ -27,7 +60,7 @@ CREATE TABLE `pair_application` (
   `source_id` int(11) DEFAULT NULL,
   `destination_id` int(11) DEFAULT NULL,
   `type` int(11) NOT NULL,
-  `status` int(11) NOT NULL,
+  `status` int(11) DEFAULT NULL,
   `apply_time` datetime DEFAULT NULL,
   `confirm_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -178,4 +211,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-20 18:59:42
+-- Dump completed on 2018-03-21 12:17:45

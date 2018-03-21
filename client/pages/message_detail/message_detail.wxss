@@ -1,0 +1,9 @@
+page{
+    background-color: #FFFFFF;
+    height: 100%;
+}
+
+button{
+    display: inline-block;
+    width: 45%;
+}

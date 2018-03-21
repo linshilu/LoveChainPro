@@ -20,7 +20,7 @@ Page({
                 var code = res.code;
                 data['code'] = code;
                 wx.request({
-                    url: 'http://127.0.0.1:5000/register/',
+                    url: app.globalData.host + '/register/',
                     method: 'POST',
                     header: { 'content-type': 'application/x-www-form-urlencoded' },
                     data: data,

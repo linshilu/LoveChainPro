@@ -3,7 +3,7 @@
     <view class="weui-panel__hd">消息列表</view>
     <view class="weui-panel__bd">
         <block wx:for="{{message}}" wx:for-index="idx" wx:for-item="msg">
-            <navigator url='../register/register?msg_id={{msg.id}}'>
+            <navigator url='../message_detail/message_detail?msg_id={{msg.id}}'>
                 <view class="weui-media-box weui-media-box_text" hover-class="weui-grid_active">
                     <view class="weui-media-box__title weui-media-box__title_in-text">{{msg.title}}</view>
                     <view class="weui-media-box__desc">{{msg.content}}</view>
@@ -13,7 +13,7 @@
     </view>
 
     <view class="weui-panel__bd">
-        <navigator url='../register/register?arg=100'>
+        <navigator url='../message_detail/message_detail?msg_id=1'>
             <view class="weui-media-box weui-media-box_text">
                 <view class="weui-media-box__title weui-media-box__title_in-text">标题一</view>
                 <view class="weui-media-box__desc">由各种物质组成的巨型球状天体，叫做星球。星球有一定的形状，有自己的运行轨道。</view>
