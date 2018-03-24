@@ -56,9 +56,21 @@
                     </view> -->
                 </view>
             </view>
+            <checkbox-group bindchange="bindAgreeChange">
+                <label class="weui-agree" for="weuiAgree">
+                    <view class="weui-agree__text">
+                        <checkbox class="weui-agree__checkbox" id="weuiAgree" value="agree" checked="{{isAgree}}" />
+                        <view class="weui-agree__checkbox-icon">
+                            <icon class="weui-agree__checkbox-icon-check" type="success_no_circle" size="9" wx:if="{{isAgree}}"></icon>
+                        </view>
+                        阅读并同意
+                        <navigator url="../user_agreements/user_agreements" class="weui-agree__link">《用户协议》</navigator>
+                    </view>
+                </label>
+            </checkbox-group>
             <view class="weui-btn-area">
-            <button class="weui-btn" type="primary" form-type='submit' bindtap="">确定</button>
-        </view>
+                <button class="weui-btn" type="primary" form-type='submit' bindtap="">确定</button>
+            </view>
         </form>
     </view>
 </view>

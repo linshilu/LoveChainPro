@@ -6,7 +6,7 @@
     </view>
 
     <view>
-        <view class="weui-cells__title">个人详情</view>
+        <view class="weui-cells__title">个人信息</view>
         <view wx:if="{{login}}" class="weui-cells weui-cells_after-title">
             <view class="weui-cell weui-cell_input">
                 <view class="weui-cell__hd">
@@ -49,20 +49,23 @@
     </view>
 
     <view wx:if="{{login}}" class="page__bd" style="margin-top: 20px;">
-        <view class="weui-cells__title">应用</view>
+        <view class="weui-cells__title">应用服务</view>
         <view class="weui-grids">
-            <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../logs/logs'>
+            <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../user_info/user_info'>
                 个人信息
             </navigator>
-            <navigator class='userinfo-nav' hover-class="weui-grid_active">
+            <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../pair_apply/pair_apply'>
                 配对申请
             </navigator>
-            <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../search/search'>
+            <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../pair_query/pair_query'>
                 配对查询
             </navigator>
             <navigator class='userinfo-nav' hover-class="weui-grid_active" url='../message/message'>
                 系统消息
             </navigator>
+            <view class='userinfo-nav' hover-class="weui-grid_active" bindtap='closeAccount'>
+                用户注销
+            </view>
         </view>
     </view>
 </view>

@@ -2,10 +2,11 @@
     "pages": [
         "pages/index/index",
         "pages/register/register",
-        "pages/logs/logs",
         "pages/message/message",
         "pages/message_detail/message_detail",
-        "pages/search/search"
+        "pages/pair_query/pair_query",
+        "pages/user_agreements/user_agreements",
+        "pages/user_info/user_info"
     ],
     "window": {
         "backgroundTextStyle": "light",

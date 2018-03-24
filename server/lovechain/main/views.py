@@ -1,7 +1,6 @@
 # ! /usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from time import sleep
 
 import requests
 from flask import request, jsonify, session
@@ -9,14 +8,13 @@ from flask_login import current_user, login_user
 
 from . import main
 from .. import db
-from ..models import User, PairApplication, UnpairApplication, UserRelationship, Transaction, Message
-
+from ..models import User, PairApplication, UnpairApplication, UserRelationship, Transaction, Message, QueryApplication
 
 
 @main.route('/index/', methods=['POST'])
 def index():
-    user = current_user
-    # user = User.query.filter_by(id=2).first()
+    # user = current_user
+    user = User.query.filter_by(id=1).first()
     data = {
         'name': user.name,
         'gender': '女' if user.gender else '男',
@@ -160,9 +158,8 @@ def pair_lock_confirm():
 
 @main.route('/pair/unlock/check/', methods=['POST'])
 def pair_unlock_check():
-
     src_user = current_user
-    #dest_user = src_user.relationship_source.first or src_user.relationship_destination.first
+    # dest_user = src_user.relationship_source.first or src_user.relationship_destination.first
 
     phone_number = src_user.phone
 
@@ -171,14 +168,12 @@ def pair_unlock_check():
     data = {'status': 'success'}
     return jsonify(data)
 
+
 @main.route('/pair/unlock/process/', methods=['POST'])
 def pair_unlock_process():
-
     src_user = current_user
-    target_relationship = src_user.relationship_source.first \
-                          or src_user.relationship_destination.first
-    dest_user = src_user.relationship_source.first.destination.destination \
-                    or src_user.relationship_destination.first.source
+    target_relationship = src_user.relationship_source.first or src_user.relationship_destination.first
+    dest_user = src_user.relationship_source.first.destination.destination or src_user.relationship_destination.first.source
 
     un_pa = UnpairApplication()
     un_pa.source = src_user
@@ -194,27 +189,27 @@ def pair_unlock_process():
     data = {'status': 'success'}
     return jsonify(data)
 
+
 @main.route('/person/info/', methods=['GET'])
 def person_info_get():
-    #user = current_user
-    #dest_user = user.relationship_source.first.destination.destination \
-     #           or user.relationship_destination.first.source
+    # user = current_user
+    # dest_user = user.relationship_source.first.destination.destination \
+    #           or user.relationship_destination.first.source
 
     data = {
-        'name':'1',#user.name,
-        'gender':'1',#user.gender,
-        'phone': 1,#user.phone,
-        'IDCard': 1,#user.id_number,
-        'loveStatus': '1',#user.love_status,
-        'balance': 1,#user.balance,
-        'mateName': '1',#dest_user.name
+        'name': '1',  # user.name,
+        'gender': '1',  # user.gender,
+        'phone': 1,  # user.phone,
+        'IDCard': 1,  # user.id_number,
+        'loveStatus': '1',  # user.love_status,
+        'balance': 1,  # user.balance,
+        'mateName': '1',  # dest_user.name
     }
 
-
-
-    #print(data)
+    # print(data)
 
     return jsonify(data)
+
 
 @main.route('/person/info', methods=['POST'])
 def person_info_save():
@@ -228,18 +223,16 @@ current_user.name = request.form.get('userName')
 
     db.session.commit()
     '''
-    a=request.form.get('name')
+    a = request.form.get('name')
     print(a)
 
     data = {'status': 'success'}
     return jsonify(data)
 
+
 @main.route('/message/list/', methods=['POST'])
 def pair_lock_list():
-    open_id = request.form.get('open_id')
-
-    user = User.query.filter_by(open_id=open_id).first()
-    msg_list = user.message_destination
+    msg_list = current_user.message_destination.order_by(Message.time.desc()).all()
 
     msg_type_map = {
         Message.TYPE_PAIR: '配对请求',
@@ -273,12 +266,13 @@ def message_detail():
     msg = Message.query.filter_by(id=msg_id).first()
     msg.status = 2
     db.session.commit()
-    msg = {'id': msg_id, 'type': msg.type, 'content': msg.content, 'time': str(msg.time), 'source_name': msg.source.name}
+    msg = {'id': msg_id, 'type': msg.type, 'content': msg.content, 'time': str(msg.time),
+           'source_name': msg.source.name}
     return jsonify(status='success', msg=msg)
 
 
-#用户A提交查询表单
-@main.route('/pair/query/apply/', methods = ['POST'])
+# 用户A提交查询表单
+@main.route('/pair/query/apply/', methods=['POST'])
 def pair_query_apply():
     data = {}
 
@@ -287,10 +281,11 @@ def pair_query_apply():
     src_user = User.query.filter_by(open_id=src_open_id).first()
     dst_user = User.query.filter_by(open_id=dst_open_id).first()
 
-    #qa是最近一次A对B的查询
-    qa = QueryApplication.query.filter_by(source_id=src_user.id, destination_id=dst_user.id).order_by(QueryApplication.id.desc()).first()
-    
-    if qa == None or qa.status == QueryApplication.STATUS_DISAPPROVE:
+    # qa是最近一次A对B的查询
+    qa = QueryApplication.query.filter_by(source_id=src_user.id, destination_id=dst_user.id).order_by(
+        QueryApplication.id.desc()).first()
+
+    if qa is None or qa.status == QueryApplication.STATUS_DISAPPROVE:
         src_user.balance -= 1
         qa = QueryApplication(src_user, dst_user)
         db.session.add(qa)
@@ -309,8 +304,9 @@ def pair_query_apply():
     elif qa.status == QueryApplication.STATUS_APPROVE:
         data['state'] = 'approve'
 
-        #查看用户B的解锁记录
-        ua_list = UnpairApplication.query.filter((UnpairApplication.source_id==dst_user.id) | (UnpairApplication.destination_id==dst_user.id))
+        # 查看用户B的解锁记录
+        ua_list = UnpairApplication.query.filter(
+            (UnpairApplication.source_id == dst_user.id) | (UnpairApplication.destination_id == dst_user.id))
         ua_data = []
         for ua in ua_list:
             tmp = {
@@ -325,8 +321,9 @@ def pair_query_apply():
             ua_data.append(tmp)
         data['unlock_history'] = ua_data
 
-        #查看用户B的配对记录
-        pa_list = PairApplication.query.filter((PairApplication.source_id==dst_user.id) | (PairApplication.destination_id==dst_user.id))
+        # 查看用户B的配对记录
+        pa_list = PairApplication.query.filter(
+            (PairApplication.source_id == dst_user.id) | (PairApplication.destination_id == dst_user.id))
         pa_data = []
         for pa in pa_list:
             tmp = {
@@ -345,8 +342,8 @@ def pair_query_apply():
     return jsonify(data)
 
 
-#用户B对某个查询需求进行确认
-@main.route('/pair/query/confirm/', methods = ['POST'])
+# 用户B对某个查询需求进行确认
+@main.route('/pair/query/confirm/', methods=['POST'])
 def pair_query_confirm():
     data = {}
     qa_id = request.form.get('qa_id')
@@ -359,7 +356,7 @@ def pair_query_confirm():
 
     qa = QueryApplication.query.filter_by(id=qa_id).order_by(QueryApplication.id.desc()).first()
     qa.status = confirm
-    qa.confirm_time=datetime.now()
+    qa.confirm_time = datetime.now()
 
     db.session.add(qa)
     db.session.commit()
@@ -367,42 +364,44 @@ def pair_query_confirm():
     # todo 使用模板消息发送通知到用户a
     msg = Message()
     msg.type = Message.TYPE_PAIR
-    msg.source = pa.destination
-    msg.destination = pa.source
-    msg.content = '%s%s了您的过往配对查询请求' % (qa.destination.name, '同意' if qa.status == PairApplication.STATUS_APPROVE else '拒绝')
+    msg.source = qa.destination
+    msg.destination = qa.source
+    msg.content = '%s%s了您的过往配对查询请求' % (
+        qa.destination.name, '同意' if qa.status == PairApplication.STATUS_APPROVE else '拒绝')
     db.session.add(msg)
 
     data['status'] = 'success'
     return jsonify(data)
 
 
-#用户查看自己历史的查询信息与被查询信息
-@main.route('/pair/query/history/', methods = ['POST'])
+# 用户查看自己历史的查询信息与被查询信息
+@main.route('/pair/query/history/', methods=['POST'])
 def pair_query_histoy():
     data = {}
     qa_list_source = []
     qa_list_destination = []
     src_open_id = request.form.get('src_open_id')
-    user = User.query.filter_by(open_id = src_open_id).first()
+    user = User.query.filter_by(open_id=src_open_id).first()
     for qa in user.query_source.all():
-        qa_list_source.append({'source_open_id':qa.source_open_id, 
-                               'destination_open_id':qa.destination_open_id,
-                               'status':qa.status,
-                               'apply_time':qa.apply_time,
-                               'confirm_time':qa.confirm_time})
+        qa_list_source.append({'source_open_id': qa.source_open_id,
+                               'destination_open_id': qa.destination_open_id,
+                               'status': qa.status,
+                               'apply_time': qa.apply_time,
+                               'confirm_time': qa.confirm_time})
     for qa in user.query_destination.all():
-        qa_list_destination.append({'source_open_id':qa.source_open_id, 
-                                    'destination_open_id':qa.destination_open_id,
-                                    'status':qa.status,
-                                    'apply_time':qa.apply_time,
-                                    'confirm_time':qa.confirm_time})
+        qa_list_destination.append({'source_open_id': qa.source_open_id,
+                                    'destination_open_id': qa.destination_open_id,
+                                    'status': qa.status,
+                                    'apply_time': qa.apply_time,
+                                    'confirm_time': qa.confirm_time})
     data['query_list_source'] = qa_list_source
     data['query_list_destination'] = qa_list_destination
     data['status'] = 'success'
     return jsonify(data)
 
+
 # 用户A发起对用户B的查询
-@main.route('/searchuser',methods=['POST'])
+@main.route('/searchuser', methods=['POST'])
 def searchuser():
     name = request.values.get('name')
     phone = request.values.get('phone')
@@ -415,3 +414,11 @@ def searchuser():
     # 支付爱情币
 
     return 'ok'
+
+
+@main.route('/close', methods=['POST'])
+def close():
+    current_user.close = True
+    db.session.commit()
+    data = {'status': 'success'}
+    return jsonify(data)

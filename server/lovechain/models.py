@@ -24,6 +24,7 @@ class User(UserMixin, db.Model):
     id_number = db.Column(db.String(64), nullable=False)
     love_status = db.Column(db.Integer, nullable=False)  # 1.single 2. lover 3.couple
     balance = db.Column(db.Integer, nullable=False)
+    close = db.Column(db.Boolean, default=False)
     create_time = db.Column(db.DateTime(), default=datetime.now)
     last_login_time = db.Column(db.DateTime(), default=datetime.now)
 
@@ -166,4 +167,3 @@ class Message(db.Model):
     TYPE_UNPAIR = 2
     TYPE_QUERY = 3
     TYPE_TRANSACTION = 4
-    

@@ -156,6 +156,7 @@ CREATE TABLE `user` (
   `id_number` varchar(64) NOT NULL,
   `love_status` int(11) NOT NULL,
   `balance` int(11) NOT NULL,
+  `close` tinyint(1) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   `last_login_time` datetime DEFAULT NULL,
   `open_id` varchar(64) DEFAULT NULL,

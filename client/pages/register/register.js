@@ -7,11 +7,13 @@ Page({
         radioItems: [
             { name: '男', value: '0' },
             { name: '女', value: '1' }
-        ]
+        ],
+        isAgree: false
     },
 
     formSubmit: function (e) {
         var obj = this;
+        console.log(e.detail.value);
         if(!isValid(e.detail.value, obj)) return;
         var data = e.detail.value;
         console.log(data);
@@ -65,10 +67,19 @@ Page({
         this.setData({
             radioItems: radioItems
         });
+    },
+    bindAgreeChange: function (e) {
+        this.setData({
+            isAgree: !!e.detail.value.length
+        });
     }
 });
 
 function isValid(info, page) {
+    if (page.data.isAgree == false) {
+        showTopTips(page, '请同意用户协议')
+        return false;
+    }
     if (info.name == '') {
         showTopTips(page, '姓名不能为空')
         return false;

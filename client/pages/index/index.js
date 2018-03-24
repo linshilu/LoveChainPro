@@ -9,12 +9,6 @@ Page({
         user: {},
         login: true
     },
-    //事件处理函数
-    bindViewTap: function () {
-        wx.navigateTo({
-            url: '../logs/logs'
-        })
-    },
     onLoad: function () {
         wx.getUserInfo({
             success: res => {
@@ -34,6 +28,16 @@ Page({
                     login: true,
                     user: res.data
                 });
+            }
+        })
+    },
+    closeAccount: function() {
+        wx.request({
+            url: 'http://127.0.0.1:5000/close/',
+            method: 'POST',
+            header: { 'cookie': app.globalData.cookie },
+            data: {},
+            success: res => {
             }
         })
     }
