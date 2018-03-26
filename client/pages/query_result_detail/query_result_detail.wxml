@@ -1,0 +1,24 @@
+<!--pages/query_result_detail/query_result_detail.wxml-->
+<view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
+    <view class="page__hd" >
+        <view class="page__title">查询用户：{{result.source_name}}</view>
+        <view class="page__desc">查询时间：{{msg.time}}</view>
+        <view class="page__desc">授权状态：{{msg.time}}</view>
+    </view>
+    <view class="page__bd">
+        <view class="weui-article">
+            <view class="weui-cells__title" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>过往配对情况</view>
+            <view class="weui-article__p" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>
+                <text style='font-size: 40rpx;'>{{result.lock_history}}</text>
+            </view>
+        </view>
+    </view>
+      <view class="page__bd">
+        <view class="weui-article">
+            <view class="weui-cells__title" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>过往解锁情况</view>
+            <view class="weui-article__p" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>
+                <text style='font-size: 40rpx;'>{{result.unlock_history}}</text>
+            </view>
+        </view>
+    </view>
+</view>

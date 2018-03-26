@@ -11,6 +11,7 @@ from .. import db
 from ..models import User, PairApplication, UnpairApplication, UserRelationship, Transaction, Message, QueryApplication
 
 
+
 @main.route('/index/', methods=['POST'])
 def index():
     # user = current_user
@@ -271,13 +272,15 @@ def message_detail():
     return jsonify(status='success', msg=msg)
 
 
-# 用户A提交查询表单
-@main.route('/pair/query/apply/', methods=['POST'])
-def pair_query_apply():
+
+#用户A提交查询表单
+@main.route('/pairquery/apply/', methods = ['POST'])
+def pairquery_apply():
     data = {}
 
-    src_open_id = request.form.get('src_open_id')
+    src_open_id = request.form.get('src_open_id') #获取当前用户信息
     dst_open_id = request.form.get('dst_open_id')
+
     src_user = User.query.filter_by(open_id=src_open_id).first()
     dst_user = User.query.filter_by(open_id=dst_open_id).first()
 
@@ -304,41 +307,67 @@ def pair_query_apply():
     elif qa.status == QueryApplication.STATUS_APPROVE:
         data['state'] = 'approve'
 
-        # 查看用户B的解锁记录
-        ua_list = UnpairApplication.query.filter(
-            (UnpairApplication.source_id == dst_user.id) | (UnpairApplication.destination_id == dst_user.id))
-        ua_data = []
-        for ua in ua_list:
-            tmp = {
-                'confirm_time': ua.time,
-                'source': '****',
-                'destination': '****'
-            }
-            if ua.source.id == dst_user.id:
-                tmp['source'] = ua.source.open_id
-            else:
-                tmp['destination'] = ua.destination.open_id
-            ua_data.append(tmp)
-        data['unlock_history'] = ua_data
+    return jsonify(data)
 
-        # 查看用户B的配对记录
-        pa_list = PairApplication.query.filter(
-            (PairApplication.source_id == dst_user.id) | (PairApplication.destination_id == dst_user.id))
-        pa_data = []
-        for pa in pa_list:
-            tmp = {
-                'confirm_time': pa.confirm_time,
-                'source': '****',
-                'destination': '****'
-            }
-            if pa.source.id == dst_user.id:
-                tmp['source'] = pa.source.open_id
-            else:
-                tmp['destination'] = pa.destination.open_id
-            pa_data.append(tmp)
-        data['lock_history'] = pa_data
+# 配对查询的结果列表
+@main.route('/pairquery/result/list/', methods = ['POST'])
+def pairquery_result_list():
+    print(request.form.get('src_open_id'))
+    data = {}
+    qa_list_source = []
 
-    data['status'] = 'success'
+    src_open_id = request.form.get('src_open_id')
+    user = User.query.filter_by(open_id = src_open_id).first()
+    for qa in user.query_source.all():
+        qa_list_source.append({'source_open_id':qa.source_open_id,
+                               'destination_open_id':qa.destination_open_id,
+                               'status':qa.status,
+                               'apply_time':qa.apply_time,
+                               'confirm_time':qa.confirm_time})
+    data['qa_list_source'] = qa_list_source
+    return data
+
+# 配对查询的结果详细情况，若对方已经授权，则可以看到其过往的配对信息
+@main.route('/pairquery/result/detail/',  methods = ['POST'])
+def pairquery_result_detail():
+    data = {}
+    src_open_id = request.form.get('src_open_id')  # 获取当前用户信息
+    dst_open_id = request.form.get('dst_open_id')
+    dst_user = User.query.filter_by(open_id=dst_open_id).first()
+
+
+    #查看用户B的解锁记录
+    ua_list = UnpairApplication.query.filter((UnpairApplication.source_id==dst_user.id) | (UnpairApplication.destination_id==dst_user.id))
+    ua_data = []
+    for ua in ua_list:
+        tmp = {
+            'confirm_time': ua.time,
+            'source': '****',
+            'destination': '****'
+        }
+        if ua.source.id == dst_user.id:
+            tmp['source'] = ua.source.open_id
+        else:
+            tmp['destination'] = ua.destination.open_id
+        ua_data.append(tmp)
+    data['unlock_history'] = ua_data
+
+    #查看用户B的配对记录
+    pa_list = PairApplication.query.filter((PairApplication.source_id==dst_user.id) | (PairApplication.destination_id==dst_user.id))
+    pa_data = []
+    for pa in pa_list:
+        tmp = {
+            'confirm_time': pa.confirm_time,
+            'source': '****',
+            'destination': '****'
+        }
+        if pa.source.id == dst_user.id:
+            tmp['source'] = pa.source.open_id
+        else:
+            tmp['destination'] = pa.destination.open_id
+        pa_data.append(tmp)
+    data['lock_history'] = pa_data
+    #data['status'] = 'success'
     return jsonify(data)
 
 
@@ -400,25 +429,10 @@ def pair_query_histoy():
     return jsonify(data)
 
 
-# 用户A发起对用户B的查询
-@main.route('/searchuser', methods=['POST'])
-def searchuser():
-    name = request.values.get('name')
-    phone = request.values.get('phone')
-    identitycard = request.values.get('identitycard')
-    print(name)
-    print(phone)
-    print(identitycard)
-
-    # todo
-    # 支付爱情币
-
-    return 'ok'
-
-
 @main.route('/close', methods=['POST'])
 def close():
     current_user.close = True
     db.session.commit()
     data = {'status': 'success'}
     return jsonify(data)
+

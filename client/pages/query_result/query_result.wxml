@@ -1,0 +1,37 @@
+<!--pages/query_result/query_result.wxml-->
+<view class="weui-panel weui-panel_access">
+    <view class="weui-panel__hd">查询结果</view>
+    <view class="weui-panel__bd">
+        <block wx:for="{{result}}" wx:for-index="idx" wx:for-item="rst">
+            <navigator url='../query_result_detail/query_result_detail?rst_id={{rst.source_open_id}}'>
+                <view class="weui-media-box weui-media-box_text" hover-class="weui-grid_active">
+                    <view class="weui-media-box__title weui-media-box__title_in-text">{{rst.destination_open_id}}</view>
+                    <view class="weui-media-box__desc">{{rst.status}}</view>
+                </view>
+            </navigator>
+        </block>
+    </view>
+
+    <view class="weui-panel__bd">
+        <navigator url='../query_result_detail/query_result_detail?msg_id=1'>
+            <view class="weui-media-box weui-media-box_text">
+                <view class="weui-media-box__title weui-media-box__title_in-text">用户B</view>
+                <view class="weui-media-box__desc">用户B同意了查询请求</view>
+            </view>
+        </navigator>
+        <view class="weui-media-box weui-media-box_text">
+            <view class="weui-media-box__title weui-media-box__title_in-text">用户C</view>
+            <view class="weui-media-box__desc">用户C拒绝了查询请求</view>
+        </view>
+        <view class="weui-media-box weui-media-box_text">
+            <view class="weui-media-box__title weui-media-box__title_in-text">用户D</view>
+            <view class="weui-media-box__desc">正在等待用户D的授权</view>
+        </view>
+    </view>
+    <view class="weui-panel__ft">
+        <view class="weui-cell weui-cell_access weui-cell_link">
+            <view class="weui-cell__bd">查看更多</view>
+            <view class="weui-cell__ft weui-cell__ft_in-access"></view>
+        </view>
+    </view>
+</view>
