@@ -168,3 +168,4 @@ class Message(db.Model):
     TYPE_UNPAIR = 2
     TYPE_QUERY = 3
     TYPE_TRANSACTION = 4
+

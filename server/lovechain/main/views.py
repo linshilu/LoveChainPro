@@ -1,9 +1,10 @@
 # ! /usr/bin/env python
 # -*- coding: utf-8 -*-
+import random
 from datetime import datetime
 
 import requests
-from flask import request, jsonify, session
+from flask import request, jsonify, session, current_app, json
 from flask_login import current_user, login_user
 
 from . import main
@@ -166,34 +167,79 @@ def pair_lock_confirm():
 @main.route('/pair/unlock/check/', methods=['POST'])
 def pair_unlock_check():
     src_user = current_user
+
     # dest_user = src_user.relationship_source.first or src_user.relationship_destination.first
 
-    phone_number = src_user.phone
+    #phone_number = src_user.phone
 
-    # TODO 发送手机验证码
+    # 生成验证码并保存
+    chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    x = random.choice(chars),random.choice(chars),random.choice(chars),random.choice(chars)
 
-    data = {'status': 'success'}
+    verifyCode = "".join(x)
+    current_app.verify_code = {1 : verifyCode}#{src_user.id : verifyCode}
+
+    # 发送验证码
+    resp = requests.post("http://sms-api.luosimao.com/v1/send.json",
+        auth=("api", "key-4e30423e090f54262b19ed7430e725d8"),
+        data={
+            "mobile": '18819461670',#phone_number,
+            "message": '您的手机验证码为' + verifyCode + "，有效时间为10分钟，请勿泄露【元启科技】"
+        },timeout=5, verify=False
+    )
+
+    result = json.loads(resp.content)
+    print(result)
+    data = {
+        'status': 'success',
+        'msg': result["msg"],
+        "errorCode": result["error"]
+    }
+
     return jsonify(data)
 
 
 @main.route('/pair/unlock/process/', methods=['POST'])
 def pair_unlock_process():
+
     src_user = current_user
     target_relationship = src_user.relationship_source.first or src_user.relationship_destination.first
     dest_user = src_user.relationship_source.first.destination.destination or src_user.relationship_destination.first.source
 
-    un_pa = UnpairApplication()
-    un_pa.source = src_user
-    un_pa.destination = dest_user
-    un_pa.relationship = 'single'
-    un_pa.status = 'approve'
-    db.session.add(un_pa)
+    verifyCode = request.form.get('verifyCode')
 
-    db.session.delete(target_relationship)
+    src_user = current_user
 
-    db.session.commit()
+    if int(verifyCode) == current_app.verify_code[src_user.id] :
+        target_relationship = src_user.relationship_source.first \
+                              or src_user.relationship_destination.first
 
-    data = {'status': 'success'}
+        dest_user = src_user.relationship_source.first.destination.destination \
+                or src_user.relationship_destination.first.source
+
+        un_pa = UnpairApplication()
+        un_pa.source = src_user
+        un_pa.destination = dest_user
+        un_pa.relationship = 'single'
+        un_pa.status = 'approve'
+        db.session.add(un_pa)
+
+        db.session.delete(target_relationship)
+
+        db.session.commit()
+
+        data = {
+            'status': 'success',
+            'msg': '解除配对成功'
+        }
+
+    else :
+        data = {
+            'status': 'success',
+            'msg': '验证失败'
+        }
+
+
     return jsonify(data)
 
 
@@ -292,8 +338,6 @@ def pairquery_apply():
     src_user = User.query.filter_by(open_id=src_open_id).first()
     dst_user = User.query.filter_by(open_id=dst_open_id).first()
 
-    print src_user, dst_user
-
     if dst_user is None:
         data['state'] = 'This user does not exist.'
         return jsonify(data)
@@ -328,7 +372,7 @@ def pairquery_apply():
 # 配对查询的结果列表
 @main.route('/pairquery/result/list/', methods = ['POST'])
 def pairquery_result_list():
-    print request.form.get('src_open_id')
+
     data = {}
 
     qa_list_source = []
@@ -343,7 +387,6 @@ def pairquery_result_list():
                                'confirm_time':qa.confirm_time})
     data['qa_list_source'] = qa_list_source
 
-    print data
     return jsonify(data)
 
 # 配对查询的结果详细情况，若对方已经授权，则可以看到其过往的配对信息
@@ -355,7 +398,6 @@ def pairquery_result_detail():
     src_open_id = 1
     dst_open_id = request.form.get('dst_open_id')
     dst_user = User.query.filter_by(open_id=dst_open_id).first()
-    print dst_open_id
 
     #查看用户B的解锁记录
     '''

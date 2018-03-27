@@ -1,0 +1,12 @@
+<!--pages/unpair/unpair.wxml-->
+<view class="page">
+    <view class="page__bd page__bd_spacing">
+        <view class="button-sp-area">
+            <button type="primary" bindtap="modalinput">解除配对</button>
+        </view>
+
+        <modal hidden="{{hiddenmodalput}}" title="请输入验证码" confirm-text="完成" cancel-text="取消" bindcancel="cancel" bindconfirm="confirm">  
+            <input bindinput='verifyCode' type='number' placeholder="请输入内容" disabled='{{isDisable}}' value='{{verifyMessage}}' auto-focus/>  
+        </modal>  
+    </view>
+</view>
