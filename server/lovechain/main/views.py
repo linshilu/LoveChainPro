@@ -95,27 +95,33 @@ def login():
 
 @main.route('/pair/lock/apply/', methods=['POST'])
 def pair_lock_apply():
-    src_open_id = request.form.get('src_open_id')
-    dst_open_id = request.form.get('dst_open_id')
+    name = request.form.get('name')
+    id_number = request.form.get('id_number')
+    phone = request.form.get('phone')
     relationship = request.form.get('relationship')
 
-    src_user = User.query.filter_by(open_id=src_open_id)
-    dst_user = User.query.filter_by(open_id=dst_open_id)
-    pa = PairApplication(src_user, dst_user, relationship)
+    if not ((id_number or phone) and name and relationship):
+        return jsonify(status='fail', msg='参数缺失')
+
+    if id_number:
+        dst_user = User.query.filter_by(name=name).filter_by(id_number=id_number).first()
+    else:
+        dst_user = User.query.filter_by(name=name).filter_by(phone=phone).first()
+
+    pa = PairApplication(current_user, dst_user, relationship)
     db.session.add(pa)
     db.session.commit()
 
     # todo 使用模板消息发送通知到用户b
     msg = Message()
     msg.type = Message.TYPE_PAIR
-    msg.source = src_user
+    msg.source = current_user
     msg.destination = dst_user
-    msg.content = '%s向您发起了配对请求' % src_user.name
+    msg.content = '%s向您发起了配对请求' % current_user.name
     db.session.add(msg)
     db.session.commit()
 
-    data = {'status': 'success'}
-    return jsonify(data)
+    return jsonify(status='success')
 
 
 @main.route('/pair/lock/confirm/', methods=['POST'])

@@ -13,7 +13,6 @@ Page({
 
     formSubmit: function (e) {
         var obj = this;
-        console.log(e.detail.value);
         if(!isValid(e.detail.value, obj)) return;
         var data = e.detail.value;
         console.log(data);

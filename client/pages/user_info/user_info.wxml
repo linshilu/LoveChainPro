@@ -76,10 +76,8 @@
 
             </view>
 
-            <view class="page__bd page__bd_spacing">
-                <view class="button-sp-area">
-                    <button class="weui-btn" type="primary" formType="submit">Submit</button>
-                </view>
+            <view class="weui-btn-area">
+                <button class="weui-btn" type="primary" formType="submit">Submit</button>
             </view>
 
         </form>

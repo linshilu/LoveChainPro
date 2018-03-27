@@ -13,7 +13,7 @@
                     <view class="weui-label">姓名</view>
                 </view>
                 <view class="weui-cell__bd">
-                    <text class="weui-input">{{user.name}}</text>
+                    <text class="weui-input" style='color: {{font_color}}'>{{user.name}}</text>
                 </view>
             </view>
             <view class="weui-cell weui-cell_input">
@@ -21,7 +21,7 @@
                     <view class="weui-label">性别</view>
                 </view>
                 <view class="weui-cell__bd">
-                    <text class="weui-input">{{user.gender}}</text>
+                    <text class="weui-input" style='color: {{font_color}}'>{{user.gender}}</text>
                 </view>
             </view>
             <view class="weui-cell weui-cell_input">
@@ -29,7 +29,7 @@
                     <view class="weui-label">婚恋状态</view>
                 </view>
                 <view class="weui-cell__bd">
-                    <text class="weui-input">{{user.love_status}}</text>
+                    <text class="weui-input" style='color: {{font_color}}'>{{user.love_status}}</text>
                 </view>
             </view>
             <view class="weui-cell weui-cell_input">
@@ -37,7 +37,7 @@
                     <view class="weui-label">余额</view>
                 </view>
                 <view class="weui-cell__bd">
-                    <text class="weui-input">{{user.balance}}</text>
+                    <text class="weui-input" style='color: {{font_color}}'>{{user.balance}}</text>
                 </view>
             </view>
         </view>

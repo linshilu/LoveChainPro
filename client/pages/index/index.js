@@ -6,8 +6,14 @@ Page({
     data: {
         motto: 'Hello World',
         userInfo: {},
-        user: {},
-        login: true
+        user: {
+            name: '加载中...',
+            gender: '加载中...',
+            love_status: '加载中...',
+            balance: '加载中...'
+        },
+        login: true,
+        font_color: '#aaa'
     },
     onLoad: function () {
         wx.getUserInfo({
@@ -26,12 +32,23 @@ Page({
             success: res => {
                 this.setData({
                     login: true,
-                    user: res.data
+                    user: res.data,
+                    font_color: '#000'
+                });
+            },
+            fail: res => {
+                this.setData({
+                    user: {
+                        name: '加载失败',
+                        gender: '加载失败',
+                        love_status: '加载失败',
+                        balance: '加载失败'
+                    }
                 });
             }
         })
     },
-    closeAccount: function() {
+    closeAccount: function () {
         wx.request({
             url: 'http://127.0.0.1:5000/close/',
             method: 'POST',
