@@ -13,20 +13,16 @@
     </view>
 
     <view class="weui-panel__bd">
-        <navigator url='../query_result_detail/query_result_detail?msg_id=1'>
+        <block wx:for="{{message}}">
+          <navigator url='../query_result_detail/query_result_detail?dst_open_id={{item.destination_open_id}}&apply_time={{item.apply_time}}&status={{item.status}}'>
             <view class="weui-media-box weui-media-box_text">
-                <view class="weui-media-box__title weui-media-box__title_in-text">用户B</view>
-                <view class="weui-media-box__desc">用户B同意了查询请求</view>
+                <view class="weui-media-box__title weui-media-box__title_in-text">{{item.destination_open_id}}</view>
+                <view class="weui-media-box__desc" wx:if="{{item.status == 1}}">等待</view>
+                <view class="weui-media-box__desc" wx:elif="{{item.status == 2}}">允许</view>
+                <view class="weui-media-box__desc" wx:else="{{item.status == 3}}">拒绝</view>
             </view>
-        </navigator>
-        <view class="weui-media-box weui-media-box_text">
-            <view class="weui-media-box__title weui-media-box__title_in-text">用户C</view>
-            <view class="weui-media-box__desc">用户C拒绝了查询请求</view>
-        </view>
-        <view class="weui-media-box weui-media-box_text">
-            <view class="weui-media-box__title weui-media-box__title_in-text">用户D</view>
-            <view class="weui-media-box__desc">正在等待用户D的授权</view>
-        </view>
+          </navigator>
+        </block>
     </view>
     <view class="weui-panel__ft">
         <view class="weui-cell weui-cell_access weui-cell_link">

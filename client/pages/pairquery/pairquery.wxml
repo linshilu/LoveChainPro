@@ -17,7 +17,7 @@
          <view class="weui-label">姓名</view>
       </view>
       <view class="weui-cell__bd">
-         <input class="weui-input" name="name" type="text" placeholder='请输入姓名' auto-focus/>
+         <input class="weui-input" name="dst_open_id" type="text" placeholder='请输入姓名' auto-focus/>
       </view>
     </view>
     <view class="weui-cell weui-cell_input">
@@ -33,7 +33,7 @@
          <view class="weui-label">身份证号</view>
       </view>
       <view class="weui-cell__bd">
-         <input class="weui-input" name="dst_open_id" type="text" placeholder='请输入身份证号码' auto-focus/>
+         <input class="weui-input" name="id_number" type="text" placeholder='请输入身份证号码' auto-focus/>
       </view>
     </view>
   </view>
@@ -46,7 +46,4 @@
       <button class="weui-btn" type="primary" formType="reset">Reset</button>
     </view>
   </view>
-
-
-
 </form>

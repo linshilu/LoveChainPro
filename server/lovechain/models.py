@@ -123,9 +123,10 @@ class UnpairApplication(db.Model):
 
 
 class QueryApplication(db.Model):
-    def __init__(self, source, destination):
+    def __init__(self, source, destination, status):
         self.source = source
         self.destination = destination
+        self.status = status
 
     __tablename__ = 'query_application'
     id = db.Column(db.Integer, primary_key=True)

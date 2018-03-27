@@ -280,29 +280,36 @@ def pairquery_apply():
 
     # 获取当前登陆的用户
     # src_user = current_user
-    #src_open_id = request.form.get('src_open_id')
-    src_open_id = 1
+    src_open_id = request.form.get('src_open_id')
     dst_open_id = request.form.get('dst_open_id')
 
     src_user = User.query.filter_by(open_id=src_open_id).first()
     dst_user = User.query.filter_by(open_id=dst_open_id).first()
 
+    print src_user, dst_user
+
+    if dst_user is None:
+        data['state'] = 'This user does not exist.'
+        return jsonify(data)
+    if src_open_id == dst_open_id:
+        data['state'] = 'cannot search yourself.'
+        return jsonify(data)
     # qa是最近一次A对B的查询
     qa = QueryApplication.query.filter_by(source_id=src_user.id, destination_id=dst_user.id).order_by(
         QueryApplication.id.desc()).first()
 
     if qa is None or qa.status == QueryApplication.STATUS_DISAPPROVE:
-        src_user.balance -= 1
-        qa = QueryApplication(src_user, dst_user)
+        qa = QueryApplication(src_user, dst_user, QueryApplication.STATUS_WAITING)
         db.session.add(qa)
         db.session.commit()
         data['state'] = 'sent request'
+        src_user.balance -= 1
         # todo 使用模板消息发送通知到用户b
         msg = Message()
         msg.type = Message.TYPE_QUERY
         msg.source = src_user
         msg.destination = dst_user
-        msg.content = '%s想要查询您的过往配对记录' % src_user.name
+        msg.content = u'%s想要查询您的过往配对记录' % src_user.name
         db.session.add(msg)
         db.session.commit()
     elif qa.status == QueryApplication.STATUS_WAITING:
@@ -315,61 +322,37 @@ def pairquery_apply():
 # 配对查询的结果列表
 @main.route('/pairquery/result/list/', methods = ['POST'])
 def pairquery_result_list():
-
+    print request.form.get('src_open_id')
     data = {}
 
     qa_list_source = []
-    '''
-    #src_open_id = request.form.get('src_open_id')
-    src_open_id = 1 # 临时数据
+
+    src_open_id = request.form.get('src_open_id')
     user = User.query.filter_by(open_id = src_open_id).first()
     for qa in user.query_source.all():
-        qa_list_source.append({'source_open_id':qa.source_open_id,
-                               'destination_open_id':qa.destination_open_id,
+        qa_list_source.append({'source_open_id':qa.source.open_id,
+                               'destination_open_id':qa.destination.open_id,
                                'status':qa.status,
                                'apply_time':qa.apply_time,
                                'confirm_time':qa.confirm_time})
     data['qa_list_source'] = qa_list_source
 
-    '''
-     # test data begin
-    qa_list_source.append({'source_open_id':1,
-                               'destination_open_id':'B',
-                               'status':'同意',
-                               'apply_time':'2018/3/25',
-                               'confirm_time':'2018/3/25'})
-    qa_list_source.append({'source_open_id':1,
-                               'destination_open_id':'C',
-                               'status':'拒绝',
-                               'apply_time':'2018/3/26',
-                               'confirm_time':'2018/3/26'})
-    data['qa_list_source'] = qa_list_source
-    # test data end
-
+    print data
     return jsonify(data)
 
 # 配对查询的结果详细情况，若对方已经授权，则可以看到其过往的配对信息
 @main.route('/pairquery/result/detail/',  methods = ['POST'])
 def pairquery_result_detail():
-    '''
     data = {}
 
-    # 获取当前登陆的用户
-    # user = current_user
-    # src_open_id = request.form.get('src_open_id')
+    src_open_id = request.form.get('src_open_id')
     src_open_id = 1
     dst_open_id = request.form.get('dst_open_id')
     dst_user = User.query.filter_by(open_id=dst_open_id).first()
-
-    # 查询结果的基本信息
-    confirm_result = {
-        "destination": request.form.get('dst_open_id'),
-        "confirm_status": "agree", # 临时数据
-        "confirm_time": 'today', # 临时数据
-    }
-    data['confirm_result'] = confirm_result
+    print dst_open_id
 
     #查看用户B的解锁记录
+    '''
     ua_list = UnpairApplication.query.filter((UnpairApplication.source_id==dst_user.id) | (UnpairApplication.destination_id==dst_user.id))
     ua_data = []
     for ua in ua_list:
@@ -384,6 +367,7 @@ def pairquery_result_detail():
             tmp['destination'] = ua.destination.open_id
         ua_data.append(tmp)
     data['unlock_history'] = ua_data
+    '''
 
     #查看用户B的配对记录
     pa_list = PairApplication.query.filter((PairApplication.source_id==dst_user.id) | (PairApplication.destination_id==dst_user.id))
@@ -401,38 +385,6 @@ def pairquery_result_detail():
         pa_data.append(tmp)
     data['lock_history'] = pa_data
     data['status'] = 'success'
-
-
-    '''
-    # test data begin
-    data = {
-        "status":"success",
-    }
-    confirm_result = {
-        "destination": request.form.get('dst_open_id'),
-        "confirm_status": "agree",
-        "confirm_time": 'today',
-    }
-    data['confirm_result'] = confirm_result
-    tmp = {
-        'confirm_time': '1',
-        'source': '****',
-        'destination': '****'
-    }
-    ua_data = []
-    ua_data.append(tmp)
-    data['unlock_history'] = ua_data
-
-    tmp1 = {
-        'confirm_time': '2',
-        'source': '****',
-        'destination': '****'
-    }
-    pa_data = []
-    pa_data.append(tmp1)
-    data['lock_history'] = pa_data
-    # test data end
-
 
     return jsonify(data)
 
@@ -458,11 +410,10 @@ def pair_query_confirm():
 
     # todo 使用模板消息发送通知到用户a
     msg = Message()
-    msg.type = Message.TYPE_PAIR
+    msg.type = Message.TYPE_QUERY
     msg.source = qa.destination
     msg.destination = qa.source
-    msg.content = '%s%s了您的过往配对查询请求' % (
-        qa.destination.name, '同意' if qa.status == PairApplication.STATUS_APPROVE else '拒绝')
+    msg.content = '%s%s了您的过往配对查询请求' % (qa.destination.name, '同意' if qa.status == PairApplication.STATUS_APPROVE else '拒绝')
     db.session.add(msg)
 
     data['status'] = 'success'

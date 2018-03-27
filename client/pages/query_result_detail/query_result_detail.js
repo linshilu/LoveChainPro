@@ -6,7 +6,8 @@ Page({
    * 页面的初始数据
    */
   data: {
-    result: null
+    result: null,
+    msg: null
   },
 
   /**
@@ -14,18 +15,18 @@ Page({
    */
   onLoad: function (options) {
     wx.request({
-      url: app.globalData.host + '/pairquery/result/detail/',
+      url: 'http://127.0.0.1:5000/pairquery/result/detail/',
       method: 'POST',
-      data: { 'dst_open_id': options.dst_open_id },
+      data: { dst_open_id: options.dst_open_id },
       header: { 'content-type': 'application/x-www-form-urlencoded', 'Cookie': app.globalData.cookie },
       success: res => {
-        if (res.data.status == 'success') {
           this.setData({
-            result: res.data,
+            dst_open_id: options.dst_open_id,
+            status: options.status,
+            apply_time:options.apply_time,
+            msg: res.data,
           })
-        } else {
           console.log(res.data)
-        }
       }
     })
   }
