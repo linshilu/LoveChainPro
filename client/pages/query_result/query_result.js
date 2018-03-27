@@ -14,9 +14,9 @@ Page({
             },
       success: res => {
         this.setData({
-          message: res.data.qa_list_source
+          result: res.data.qa_list_source
         })
-        console.log(res.data)
+        console.log(res.data.qa_list_source)
       }
     })
   }

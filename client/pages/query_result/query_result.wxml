@@ -1,9 +1,9 @@
 <!--pages/query_result/query_result.wxml-->
 <view class="weui-panel weui-panel_access">
-    <view class="weui-panel__hd">查询结果</view>
+    <view class="weui-panel__hd">历史查询结果</view>
     <view class="weui-panel__bd">
         <block wx:for="{{result}}" wx:for-index="idx" wx:for-item="rst">
-            <navigator url='../query_result_detail/query_result_detail?rst_id={{rst.source_open_id}}'>
+            <navigator url='../query_result_detail/query_result_detail?dst_open_id={{rst.destination_open_id}}'>
                 <view class="weui-media-box weui-media-box_text" hover-class="weui-grid_active">
                     <view class="weui-media-box__title weui-media-box__title_in-text">{{rst.destination_open_id}}</view>
                     <view class="weui-media-box__desc">{{rst.status}}</view>

@@ -278,7 +278,10 @@ def message_detail():
 def pairquery_apply():
     data = {}
 
-    src_open_id = request.form.get('src_open_id') #获取当前用户信息
+    # 获取当前登陆的用户
+    # src_user = current_user
+    #src_open_id = request.form.get('src_open_id')
+    src_open_id = 1
     dst_open_id = request.form.get('dst_open_id')
 
     src_user = User.query.filter_by(open_id=src_open_id).first()
@@ -312,11 +315,13 @@ def pairquery_apply():
 # 配对查询的结果列表
 @main.route('/pairquery/result/list/', methods = ['POST'])
 def pairquery_result_list():
-    print(request.form.get('src_open_id'))
-    data = {}
-    qa_list_source = []
 
-    src_open_id = request.form.get('src_open_id')
+    data = {}
+
+    qa_list_source = []
+    '''
+    #src_open_id = request.form.get('src_open_id')
+    src_open_id = 1 # 临时数据
     user = User.query.filter_by(open_id = src_open_id).first()
     for qa in user.query_source.all():
         qa_list_source.append({'source_open_id':qa.source_open_id,
@@ -325,16 +330,44 @@ def pairquery_result_list():
                                'apply_time':qa.apply_time,
                                'confirm_time':qa.confirm_time})
     data['qa_list_source'] = qa_list_source
-    return data
+
+    '''
+     # test data begin
+    qa_list_source.append({'source_open_id':1,
+                               'destination_open_id':'B',
+                               'status':'同意',
+                               'apply_time':'2018/3/25',
+                               'confirm_time':'2018/3/25'})
+    qa_list_source.append({'source_open_id':1,
+                               'destination_open_id':'C',
+                               'status':'拒绝',
+                               'apply_time':'2018/3/26',
+                               'confirm_time':'2018/3/26'})
+    data['qa_list_source'] = qa_list_source
+    # test data end
+
+    return jsonify(data)
 
 # 配对查询的结果详细情况，若对方已经授权，则可以看到其过往的配对信息
 @main.route('/pairquery/result/detail/',  methods = ['POST'])
 def pairquery_result_detail():
+    '''
     data = {}
-    src_open_id = request.form.get('src_open_id')  # 获取当前用户信息
+
+    # 获取当前登陆的用户
+    # user = current_user
+    # src_open_id = request.form.get('src_open_id')
+    src_open_id = 1
     dst_open_id = request.form.get('dst_open_id')
     dst_user = User.query.filter_by(open_id=dst_open_id).first()
 
+    # 查询结果的基本信息
+    confirm_result = {
+        "destination": request.form.get('dst_open_id'),
+        "confirm_status": "agree", # 临时数据
+        "confirm_time": 'today', # 临时数据
+    }
+    data['confirm_result'] = confirm_result
 
     #查看用户B的解锁记录
     ua_list = UnpairApplication.query.filter((UnpairApplication.source_id==dst_user.id) | (UnpairApplication.destination_id==dst_user.id))
@@ -367,7 +400,40 @@ def pairquery_result_detail():
             tmp['destination'] = pa.destination.open_id
         pa_data.append(tmp)
     data['lock_history'] = pa_data
-    #data['status'] = 'success'
+    data['status'] = 'success'
+
+
+    '''
+    # test data begin
+    data = {
+        "status":"success",
+    }
+    confirm_result = {
+        "destination": request.form.get('dst_open_id'),
+        "confirm_status": "agree",
+        "confirm_time": 'today',
+    }
+    data['confirm_result'] = confirm_result
+    tmp = {
+        'confirm_time': '1',
+        'source': '****',
+        'destination': '****'
+    }
+    ua_data = []
+    ua_data.append(tmp)
+    data['unlock_history'] = ua_data
+
+    tmp1 = {
+        'confirm_time': '2',
+        'source': '****',
+        'destination': '****'
+    }
+    pa_data = []
+    pa_data.append(tmp1)
+    data['lock_history'] = pa_data
+    # test data end
+
+
     return jsonify(data)
 
 

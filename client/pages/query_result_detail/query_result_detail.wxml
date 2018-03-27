@@ -1,15 +1,21 @@
 <!--pages/query_result_detail/query_result_detail.wxml-->
 <view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
     <view class="page__hd" >
-        <view class="page__title">查询用户：{{result.source_name}}</view>
-        <view class="page__desc">查询时间：{{msg.time}}</view>
-        <view class="page__desc">授权状态：{{msg.time}}</view>
+        <view class="page__title">查询用户：{{result.confirm_result.destination}}</view>
+        <view class="page__desc">查询时间：{{result.confirm_result.confirm_time}}</view>
+        <view class="page__desc">授权状态：{{result.confirm_result.confirm_status}}</view>
     </view>
     <view class="page__bd">
         <view class="weui-article">
             <view class="weui-cells__title" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>过往配对情况</view>
             <view class="weui-article__p" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>
-                <text style='font-size: 40rpx;'>{{result.lock_history}}</text>
+                <block wx:for="{{result.lock_history}}" wx:for-index="idx" wx:for-item="lock_history">
+                  <text style='font-size: 40rpx;'>source:\t{{lock_history.source}}</text>
+                  <text>\n</text>
+                   <text style='font-size: 40rpx;'>destination:\t{{lock_history.destination}}</text>
+                   <text>\n</text>
+                   <text style='font-size: 40rpx;'>confirm time:\t{{lock_history.confirm_time}}</text>
+                </block>
             </view>
         </view>
     </view>
@@ -17,7 +23,13 @@
         <view class="weui-article">
             <view class="weui-cells__title" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>过往解锁情况</view>
             <view class="weui-article__p" style='padding: 0;border-bottom: 1rpx solid #d9d9d9'>
-                <text style='font-size: 40rpx;'>{{result.unlock_history}}</text>
+                <block wx:for="{{result.unlock_history}}" wx:for-index="idx" wx:for-item="unlock_history">
+                  <text style='font-size: 40rpx;'>source:\t{{unlock_history.source}}</text>
+                  <text>\n</text>
+                   <text style='font-size: 40rpx;'>destination:\t{{unlock_history.destination}}</text>
+                   <text>\n</text>
+                   <text style='font-size: 40rpx;'>confirm_time:\t{{unlock_history.confirm_time}}</text>
+                </block>
             </view>
         </view>
     </view>

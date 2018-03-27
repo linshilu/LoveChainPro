@@ -1,7 +1,7 @@
 /* pages/search/search.wxss */
 .query-nav{
     background-color: #fff;
-    font-size: 15px;
+    font-size: 20px;
     text-align: center;
     position:relative;
     float:left;

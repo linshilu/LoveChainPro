@@ -16,15 +16,15 @@ Page({
     wx.request({
       url: app.globalData.host + '/pairquery/result/detail/',
       method: 'POST',
-      data: { 'result_id': options.result_id },
+      data: { 'dst_open_id': options.dst_open_id },
       header: { 'content-type': 'application/x-www-form-urlencoded', 'Cookie': app.globalData.cookie },
       success: res => {
         if (res.data.status == 'success') {
           this.setData({
-            msg: res.data.result,
+            result: res.data,
           })
         } else {
-          console.log(res.data.result)
+          console.log(res.data)
         }
       }
     })

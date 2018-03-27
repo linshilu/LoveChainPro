@@ -11,23 +11,42 @@
     </view>
 
 <form bindsubmit="formSubmit" bindreset="formReset">
-  <view class="section">
-    <view class="section__title">姓名</view>
-    <input name="name" placeholder="please input here" />
+  <view class="weui-cells weui-cells_after-title">
+    <view class="weui-cell weui-cell_input">
+      <view class="weui-cell__hd">
+         <view class="weui-label">姓名</view>
+      </view>
+      <view class="weui-cell__bd">
+         <input class="weui-input" name="name" type="text" placeholder='请输入姓名' auto-focus/>
+      </view>
+    </view>
+    <view class="weui-cell weui-cell_input">
+      <view class="weui-cell__hd">
+         <view class="weui-label">手机号码</view>
+      </view>
+      <view class="weui-cell__bd">
+         <input class="weui-input" name="phone" type="text" placeholder='请输入手机号码' auto-focus/>
+      </view>
+    </view>
+    <view class="weui-cell weui-cell_input">
+      <view class="weui-cell__hd">
+         <view class="weui-label">身份证号</view>
+      </view>
+      <view class="weui-cell__bd">
+         <input class="weui-input" name="dst_open_id" type="text" placeholder='请输入身份证号码' auto-focus/>
+      </view>
+    </view>
   </view>
 
-  <view class="section">
-    <view class="section__title">手机号码</view>
-    <input name="phone" placeholder="please input here" />
+  <view class="page__bd page__bd_spacing">
+    <view class="weui-btn-area">
+      <button class="weui-btn" type="primary" formType="submit">Submit</button>
+    </view>
+    <view class="weui-btn-area">
+      <button class="weui-btn" type="primary" formType="reset">Reset</button>
+    </view>
   </view>
 
-  <view class="section">
-    <view class="section__title">身份证号码</view>
-    <input name="dst_open_id" placeholder="please input here" />
-  </view>
 
-  <view class="btn-area">
-    <button formType="submit">Submit</button>
-    <button formType="reset">Reset</button>
-  </view>
+
 </form>
