@@ -3,33 +3,9 @@ App({
     onLaunch: function () {
         var app = this;
         // 展示本地存储能力
-        var logs = wx.getStorageSync('logs') || []
-        logs.unshift(Date.now())
-        wx.setStorageSync('logs', logs)
-
-        wx.login({
-            success: res => {
-                console.log(res)
-                var code = res.code;
-                wx.request({
-                    url: 'http://127.0.0.1:5000/login/',
-                    method: 'POST',
-                    header: { 'content-type': 'application/x-www-form-urlencoded' },
-                    data: { 'code': code },
-                    success: res => {
-                        if (res.data.status == 'success') {
-                            app.globalData.cookie = res.header['Set-Cookie'];
-                            app.globalData.is_reg = true;
-                        } else if (res.data.status == 'fail') {
-                            console.log(res.data.msg);
-                            if (res.data.msg == '未注册') {
-                                app.globalData.is_reg = false;
-                            }
-                        }
-                    }
-                })
-            }
-        });
+        // var logs = wx.getStorageSync('logs') || []
+        // logs.unshift(Date.now())
+        // wx.setStorageSync('logs', logs)
 
         // 获取用户信息
         wx.getSetting({
@@ -61,7 +37,6 @@ App({
     globalData: {
         host: "http://127.0.0.1:5000",
         userInfo: null,
-        cookie: null,
-        is_reg: true
+        cookie: null
     }
 })

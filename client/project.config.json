@@ -1,7 +1,7 @@
 {
 	"description": "项目配置文件。",
 	"setting": {
-		"urlCheck": true,
+		"urlCheck": false,
 		"es6": true,
 		"postcss": true,
 		"minified": true,
@@ -9,7 +9,7 @@
 	},
 	"compileType": "miniprogram",
 	"libVersion": "1.9.91",
-	"appid": "touristappid",
+	"appid": "wx9fe6a3e3ee93229c",
 	"projectname": "client",
 	"condition": {
 		"search": {
@@ -29,18 +29,12 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 3,
+			"current": -1,
 			"list": [
 				{
 					"id": -1,
-					"name": "配对查询",
-					"pathName": "pages/pairquery/pairquery",
-					"query": ""
-				},
-				{
-					"id": -1,
-					"name": "注册",
-					"pathName": "pages/register/register",
+					"name": "首页",
+					"pathName": "pages/index/index",
 					"query": ""
 				},
 				{
@@ -51,8 +45,14 @@
 				},
 				{
 					"id": -1,
-					"name": "首页",
-					"pathName": "pages/index/index",
+					"name": "注册",
+					"pathName": "pages/register/register",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "配对查询",
+					"pathName": "pages/pair_query/pair_query",
 					"query": ""
 				},
 				{

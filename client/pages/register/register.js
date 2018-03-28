@@ -28,6 +28,14 @@ Page({
                     success: res => {
                         console.log(res)
                         if (res.data.status == 'success') {
+                            app.globalData.cookie = res.header['Set-Cookie'];
+                            let pages = getCurrentPages();
+                            let prevPage = pages[pages.length - 2];
+                            prevPage.setData({
+                                reg: true,
+                                user: res.data.user,
+                                font_color: '#000'
+                            });
                             wx.showModal({
                                 content: res.data.msg,
                                 showCancel: false,
@@ -35,13 +43,13 @@ Page({
                                     if (res.confirm) {
                                         console.log('用户点击确定')
                                         wx.navigateBack({
-                                            delta: 1
+                                            delta: 1,
                                         })
                                     }
                                 }
                             });
                         }
-                        else {
+                        else if (res.data.status == 'fail'){
                             wx.showModal({
                                 content: res.data.msg,
                                 showCancel: false,
@@ -75,10 +83,6 @@ Page({
 });
 
 function isValid(info, page) {
-    if (page.data.isAgree == false) {
-        showTopTips(page, '请同意用户协议')
-        return false;
-    }
     if (info.name == '') {
         showTopTips(page, '姓名不能为空')
         return false;
@@ -93,6 +97,10 @@ function isValid(info, page) {
     }
     if (info.phone == '') {
         showTopTips(page, '手机号不能为空')
+        return false;
+    }
+    if (page.data.isAgree == false) {
+        showTopTips(page, '请同意用户协议')
         return false;
     }
     return true;

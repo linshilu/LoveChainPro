@@ -8,8 +8,9 @@ Page({
 
     onLoad: function (options) {
         wx.request({
-            url: 'http://127.0.0.1:5000/message/list/',
+            url: app.globalData.host +'/list/',
             method: 'POST',
+            header: { 'cookie': app.globalData.cookie },
             data: {},
             success: res => {
                 this.setData({

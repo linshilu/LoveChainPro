@@ -2,16 +2,16 @@
 <view class="weui-panel weui-panel_access">
     <view class="weui-panel__hd">消息列表</view>
     <view class="weui-panel__bd">
-        <block wx:for="{{message}}" wx:for-index="idx" wx:for-item="msg">
-            <navigator url='../message_detail/message_detail?msg_id={{msg.id}}'>
-                <view class="weui-media-box weui-media-box_text" hover-class="weui-grid_active">
+        <block wx:for="{{message}}" wx:for-index="idx" wx:for-item="msg" wx:key="id">
+            <view class="weui-media-box weui-media-box_text">
+                <navigator url='../message_detail/message_detail?msg_id={{msg.id}}'>
                     <view class="weui-media-box__title weui-media-box__title_in-text">{{msg.title}}</view>
                     <view class="weui-media-box__desc">{{msg.content}}</view>
-                </view>
-            </navigator>
+                </navigator>
+            </view>
         </block>
     </view>
-
+    <!-- 
     <view class="weui-panel__bd">
         <navigator url='../message_detail/message_detail?msg_id=1'>
             <view class="weui-media-box weui-media-box_text">
@@ -23,7 +23,7 @@
             <view class="weui-media-box__title weui-media-box__title_in-text">标题二</view>
             <view class="weui-media-box__desc">由各种物质组成的巨型球状天体，叫做星球。星球有一定的形状，有自己的运行轨道。</view>
         </view>
-    </view>
+    </view> -->
     <view class="weui-panel__ft">
         <view class="weui-cell weui-cell_access weui-cell_link">
             <view class="weui-cell__bd">查看更多</view>

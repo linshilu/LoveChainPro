@@ -22,8 +22,8 @@ class User(UserMixin, db.Model):
     gender = db.Column(db.Boolean, default=True)  # false: male true: female
     phone = db.Column(db.String(64), nullable=False)
     id_number = db.Column(db.String(64), nullable=False)
-    love_status = db.Column(db.Integer, nullable=False)  # 1.single 2. lover 3.couple
-    balance = db.Column(db.Integer, nullable=False)
+    love_status = db.Column(db.Integer, default=1)  # 1.single 2. lover 3.couple
+    balance = db.Column(db.Integer, default=0)
     close = db.Column(db.Boolean, default=False)
     create_time = db.Column(db.DateTime(), default=datetime.now)
     last_login_time = db.Column(db.DateTime(), default=datetime.now)
@@ -80,17 +80,17 @@ class Transaction(db.Model):
 
 
 class PairApplication(db.Model):
-    def __init__(self, source, destination, type):
+    def __init__(self, source, destination, relationship):
         self.source = source
         self.destination = destination
-        self.type = type
+        self.relationship = relationship
 
     __tablename__ = 'pair_application'
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     destination_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    type = db.Column(db.Integer, nullable=False)  # 1.lover 2.couple
+    relationship = db.Column(db.Integer, nullable=False)  # 1.lover 2.couple
     status = db.Column(db.Integer, default=1)  # 1.waiting 2.approve 3.disapprove
     apply_time = db.Column(db.DateTime(), default=datetime.now)
     confirm_time = db.Column(db.DateTime(), default=None)
@@ -100,15 +100,15 @@ class PairApplication(db.Model):
     destination = db.relationship('User', foreign_keys=[destination_id],
                                   backref=db.backref('pair_destination', lazy='dynamic'))
 
-    TYPE_LOVER = 1
-    TYPE_COUPLE = 2
+    RELATIONSHIP_LOVER = 1
+    RELATIONSHIP_COUPLE = 2
     STATUS_WAITING = 1
     STATUS_APPROVE = 2
     STATUS_DISAPPROVE = 3
 
 
 class UnpairApplication(db.Model):
-    __tablename__ = 'un_pair_application'
+    __tablename__ = 'unpair_application'
 
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -167,5 +167,6 @@ class Message(db.Model):
     TYPE_PAIR = 1
     TYPE_UNPAIR = 2
     TYPE_QUERY = 3
-    TYPE_TRANSACTION = 4
+    TYPE_CONFIRM = 4
+    TYPE_TRANSACTION = 5
 

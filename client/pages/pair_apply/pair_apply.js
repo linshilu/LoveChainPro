@@ -28,7 +28,7 @@ Page({
                     wx.request({
                         url: app.globalData.host + '/pair/lock/apply/',
                         method: 'POST',
-                        header: { 'content-type': 'application/x-www-form-urlencoded' },
+                        header: { 'content-type': 'application/x-www-form-urlencoded' , 'cookie': app.globalData.cookie },
                         data: data,
                         success: res => {
                             console.log(res)

@@ -4,7 +4,7 @@
     "pages/message/message",
     "pages/message_detail/message_detail",
     "pages/pair_apply/pair_apply",
-    "pages/pairquery/pairquery",
+    "pages/pair_query/pair_query",
     "pages/query_result/query_result",
     "pages/query_result_detail/query_result_detail",
     "pages/register/register",

@@ -4,7 +4,7 @@ import random
 from datetime import datetime
 
 import requests
-from flask import request, jsonify, session, current_app, json
+from flask import request, jsonify, session, current_app, json, abort
 from flask_login import current_user, login_user
 
 from . import main
@@ -12,18 +12,9 @@ from .. import db
 from ..models import User, PairApplication, UnpairApplication, UserRelationship, Transaction, Message, QueryApplication
 
 
-
-@main.route('/index/', methods=['POST'])
+@main.route('/', methods=['GET', 'POST'])
 def index():
-    # user = current_user
-    user = User.query.filter_by(id=1).first()
-    data = {
-        'name': user.name,
-        'gender': '女' if user.gender else '男',
-        'love_status': user.love_status,
-        'balance': user.balance
-    }
-    return jsonify(data)
+    return 'success'
 
 
 @main.route('/register/', methods=['POST'])
@@ -33,14 +24,15 @@ def register():
     id_number = request.form.get('id_number')
     phone = request.form.get('phone')
     code = request.form.get('code')
-
+    print(gender)
+    print(bool(gender))
     if (name and gender and id_number and phone and code) is None:
         return jsonify(status='fail', msg='参数缺失，注册失败')
 
     try:
         response = requests.get(url='https://api.weixin.qq.com/sns/jscode2session',
-                                params={'appid': '',
-                                        'secret': '',
+                                params={'appid': current_app.config['APP_ID'],
+                                        'secret': current_app.config['APP_SECRET'],
                                         'js_code': code,
                                         'grant_type': 'authorization_code'}, timeout=10)
         response.raise_for_status()
@@ -55,11 +47,19 @@ def register():
     session_key = result.get('session_key')
     session['session_key'] = session_key
 
-    curr_user = User(name, gender, id_number, phone, open_id)
-    login_user(curr_user)
+    curr_user = User(name, gender == '1', id_number, phone, open_id)
     curr_user.last_login_time = datetime.now()
+    db.session.add(curr_user)
     db.session.commit()
-    return jsonify(status='success')
+    login_user(curr_user)
+    user_data = {
+        'status': 'success',
+        'name': curr_user.name,
+        'gender': '女' if curr_user.gender else '男',
+        'love_status': curr_user.love_status,
+        'balance': curr_user.balance
+    }
+    return jsonify(status='success', user=user_data, msg='注册成功')
 
 
 @main.route('/login/', methods=['POST'])
@@ -69,8 +69,8 @@ def login():
         return jsonify(status='fail', msg='参数缺失')
     try:
         response = requests.get(url='https://api.weixin.qq.com/sns/jscode2session',
-                                params={'appid': '',
-                                        'secret': '',
+                                params={'appid': current_app.config['APP_ID'],
+                                        'secret': current_app.config['APP_SECRET'],
                                         'js_code': code,
                                         'grant_type': 'authorization_code'}, timeout=10)
         response.raise_for_status()
@@ -91,7 +91,19 @@ def login():
     login_user(curr_user)
     curr_user.last_login_time = datetime.now()
     db.session.commit()
-    return jsonify(status='success')
+
+    # for test
+    # curr_user = User.query.filter_by(id=2).first()
+    # login_user(curr_user)
+
+    user_data = {
+        'status': 'success',
+        'name': curr_user.name,
+        'gender': '女' if curr_user.gender else '男',
+        'love_status': curr_user.love_status,
+        'balance': curr_user.balance
+    }
+    return jsonify(status='success', user=user_data, msg='登陆成功')
 
 
 @main.route('/pair/lock/apply/', methods=['POST'])
@@ -113,9 +125,9 @@ def pair_lock_apply():
     db.session.add(pa)
     db.session.commit()
 
-    # todo 使用模板消息发送通知到用户b
     msg = Message()
     msg.type = Message.TYPE_PAIR
+    msg.associated_id = pa.id
     msg.source = current_user
     msg.destination = dst_user
     msg.content = '%s向您发起了配对请求' % current_user.name
@@ -127,11 +139,13 @@ def pair_lock_apply():
 
 @main.route('/pair/lock/confirm/', methods=['POST'])
 def pair_lock_confirm():
-    pa_id = request.form.get('pa_id')
+    msg_id = request.form.get('msg_id')
+    msg = Message.query.filter_by(id=msg_id).first()
+    pa_id = msg.associated_id
     confirm = request.form.get('confirm')
 
     pa = PairApplication.query.filter_by(id=pa_id).first()
-    pa.status = confirm
+    pa.status = int(confirm)
     pa.confirm_time = datetime.now()
 
     if pa.status == PairApplication.STATUS_APPROVE:
@@ -149,19 +163,19 @@ def pair_lock_confirm():
         db.session.add(t1)
         db.session.add(t2)
 
-    db.session.commit()
+    # todo fix bug
+    a = pa.source
 
-    # todo 使用模板消息发送通知到用户a
     msg = Message()
-    msg.type = Message.TYPE_PAIR
+    msg.type = Message.TYPE_CONFIRM
+    msg.associated_id = pa.id
     msg.source = pa.destination
     msg.destination = pa.source
     msg.content = '%s%s了您的配对请求' % (pa.destination.name, '同意' if pa.status == PairApplication.STATUS_APPROVE else '拒绝')
     db.session.add(msg)
     db.session.commit()
 
-    data = {'status': 'success'}
-    return jsonify(data)
+    return jsonify(status='success', msg='')
 
 
 @main.route('/pair/unlock/check/', methods=['POST'])
@@ -170,23 +184,23 @@ def pair_unlock_check():
 
     # dest_user = src_user.relationship_source.first or src_user.relationship_destination.first
 
-    #phone_number = src_user.phone
+    # phone_number = src_user.phone
 
     # 生成验证码并保存
     chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    x = random.choice(chars),random.choice(chars),random.choice(chars),random.choice(chars)
+    x = random.choice(chars), random.choice(chars), random.choice(chars), random.choice(chars)
 
-    verifyCode = "".join(x)
-    current_app.verify_code = {1 : verifyCode}#{src_user.id : verifyCode}
+    verify_code = "".join(x)
+    current_app.verify_code = {1: verify_code}  # {src_user.id : verifyCode}
 
     # 发送验证码
     resp = requests.post("http://sms-api.luosimao.com/v1/send.json",
-        auth=("api", "key-4e30423e090f54262b19ed7430e725d8"),
-        data={
-            "mobile": '18819461670',#phone_number,
-            "message": '您的手机验证码为' + verifyCode + "，有效时间为10分钟，请勿泄露【元启科技】"
-        },timeout=5, verify=False
-    )
+                         auth=("api", "key-4e30423e090f54262b19ed7430e725d8"),
+                         data={
+                             "mobile": '18819461670',  # phone_number,
+                             "message": '您的手机验证码为' + verify_code + "，有效时间为10分钟，请勿泄露【元启科技】"
+                         }, timeout=5, verify=False
+                         )
 
     result = json.loads(resp.content)
     print(result)
@@ -201,21 +215,20 @@ def pair_unlock_check():
 
 @main.route('/pair/unlock/process/', methods=['POST'])
 def pair_unlock_process():
-
     src_user = current_user
     target_relationship = src_user.relationship_source.first or src_user.relationship_destination.first
     dest_user = src_user.relationship_source.first.destination.destination or src_user.relationship_destination.first.source
 
-    verifyCode = request.form.get('verifyCode')
+    verify_code = request.form.get('verifyCode')
 
     src_user = current_user
 
-    if int(verifyCode) == current_app.verify_code[src_user.id] :
+    if int(verify_code) == current_app.verify_code[src_user.id]:
         target_relationship = src_user.relationship_source.first \
                               or src_user.relationship_destination.first
 
         dest_user = src_user.relationship_source.first.destination.destination \
-                or src_user.relationship_destination.first.source
+                    or src_user.relationship_destination.first.source
 
         un_pa = UnpairApplication()
         un_pa.source = src_user
@@ -233,12 +246,11 @@ def pair_unlock_process():
             'msg': '解除配对成功'
         }
 
-    else :
+    else:
         data = {
             'status': 'success',
             'msg': '验证失败'
         }
-
 
     return jsonify(data)
 
@@ -266,16 +278,15 @@ def person_info_get():
 
 @main.route('/person/info', methods=['POST'])
 def person_info_save():
-    '''
-current_user.name = request.form.get('userName')
-    current_user.gender = request.form.get('userGender')
-    current_user.phone = request.form.get('userPhone')
-    current_user.id_number = request.form.get('userIDCard')
-    current_user.love_status = request.form.get('userLoveStatus')
-    current_user.name = request.form.get('userName')
+    # current_user.name = request.form.get('userName')
+    # current_user.gender = request.form.get('userGender')
+    # current_user.phone = request.form.get('userPhone')
+    # current_user.id_number = request.form.get('userIDCard')
+    # current_user.love_status = request.form.get('userLoveStatus')
+    # current_user.name = request.form.get('userName')
+    #
+    # db.session.commit()
 
-    db.session.commit()
-    '''
     a = request.form.get('name')
     print(a)
 
@@ -324,10 +335,9 @@ def message_detail():
     return jsonify(status='success', msg=msg)
 
 
-
-#用户A提交查询表单
-@main.route('/pairquery/apply/', methods = ['POST'])
-def pairquery_apply():
+# 用户A提交查询表单
+@main.route('/pair_query/apply/', methods=['POST'])
+def pair_query_apply():
     data = {}
 
     # 获取当前登陆的用户
@@ -369,29 +379,30 @@ def pairquery_apply():
 
     return jsonify(data)
 
-# 配对查询的结果列表
-@main.route('/pairquery/result/list/', methods = ['POST'])
-def pairquery_result_list():
 
+# 配对查询的结果列表
+@main.route('/pair_query/result/list/', methods=['POST'])
+def pair_query_result_list():
     data = {}
 
     qa_list_source = []
 
     src_open_id = request.form.get('src_open_id')
-    user = User.query.filter_by(open_id = src_open_id).first()
+    user = User.query.filter_by(open_id=src_open_id).first()
     for qa in user.query_source.all():
-        qa_list_source.append({'source_open_id':qa.source.open_id,
-                               'destination_open_id':qa.destination.open_id,
-                               'status':qa.status,
-                               'apply_time':qa.apply_time,
-                               'confirm_time':qa.confirm_time})
+        qa_list_source.append({'source_open_id': qa.source.open_id,
+                               'destination_open_id': qa.destination.open_id,
+                               'status': qa.status,
+                               'apply_time': qa.apply_time,
+                               'confirm_time': qa.confirm_time})
     data['qa_list_source'] = qa_list_source
 
     return jsonify(data)
 
+
 # 配对查询的结果详细情况，若对方已经授权，则可以看到其过往的配对信息
-@main.route('/pairquery/result/detail/',  methods = ['POST'])
-def pairquery_result_detail():
+@main.route('/pair_query/result/detail/', methods=['POST'])
+def pair_query_result_detail():
     data = {}
 
     src_open_id = request.form.get('src_open_id')
@@ -399,7 +410,7 @@ def pairquery_result_detail():
     dst_open_id = request.form.get('dst_open_id')
     dst_user = User.query.filter_by(open_id=dst_open_id).first()
 
-    #查看用户B的解锁记录
+    # 查看用户B的解锁记录
     '''
     ua_list = UnpairApplication.query.filter((UnpairApplication.source_id==dst_user.id) | (UnpairApplication.destination_id==dst_user.id))
     ua_data = []
@@ -417,8 +428,9 @@ def pairquery_result_detail():
     data['unlock_history'] = ua_data
     '''
 
-    #查看用户B的配对记录
-    pa_list = PairApplication.query.filter((PairApplication.source_id==dst_user.id) | (PairApplication.destination_id==dst_user.id))
+    # 查看用户B的配对记录
+    pa_list = PairApplication.query.filter(
+        (PairApplication.source_id == dst_user.id) | (PairApplication.destination_id == dst_user.id))
     pa_data = []
     for pa in pa_list:
         tmp = {
@@ -461,7 +473,8 @@ def pair_query_confirm():
     msg.type = Message.TYPE_QUERY
     msg.source = qa.destination
     msg.destination = qa.source
-    msg.content = '%s%s了您的过往配对查询请求' % (qa.destination.name, '同意' if qa.status == PairApplication.STATUS_APPROVE else '拒绝')
+    msg.content = '%s%s了您的过往配对查询请求' % (
+        qa.destination.name, '同意' if qa.status == PairApplication.STATUS_APPROVE else '拒绝')
     db.session.add(msg)
 
     data['status'] = 'success'
@@ -500,4 +513,3 @@ def close():
     db.session.commit()
     data = {'status': 'success'}
     return jsonify(data)
-

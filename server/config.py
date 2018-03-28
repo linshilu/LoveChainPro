@@ -13,6 +13,8 @@ class Config:
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     PERMANENT_SESSION_LIFETIME = timedelta(days=25)
+    APP_ID = os.environ.get('APP_ID')
+    APP_SECRET = os.environ.get('APP_SECRET')
 
     @staticmethod
     def init_app(app):

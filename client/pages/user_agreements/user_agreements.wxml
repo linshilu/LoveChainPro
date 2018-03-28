@@ -16,10 +16,10 @@
                         quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
                         consequat.
                     </view>
-                    <view class="weui-article__p">
+                    <!-- <view class="weui-article__p">
                         <image class="weui-article__img" src="../images/pic_article.png" mode="aspectFit" style="height: 180px" />
                         <image class="weui-article__img" src="../images/pic_article.png" mode="aspectFit" style="height: 180px" />
-                    </view>
+                    </view> -->
                 </view>
                 <view class="weui-article__section">
                     <view class="weui-article__h3">1.2 节标题</view>
