@@ -15,7 +15,6 @@ Page({
         font_color: '#aaa'
     },
     onLoad: function () {
-
         wx.login({
             success: res => {
                 console.log(res)
@@ -56,6 +55,21 @@ Page({
             }
         })
 
+    },
+    onShow: function () {
+        if (this.data.reg == 1) {
+            wx.request({
+                url: app.globalData.host + '/user/data/',
+                method: 'POST',
+                header: { 'cookie': app.globalData.cookie },
+                data: {},
+                success: res => {
+                    this.setData({
+                        user: res.data,
+                    });
+                }
+            })
+        }
     },
     closeAccount: function () {
         wx.showModal({

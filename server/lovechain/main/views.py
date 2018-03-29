@@ -24,8 +24,7 @@ def register():
     id_number = request.form.get('id_number')
     phone = request.form.get('phone')
     code = request.form.get('code')
-    print(gender)
-    print(bool(gender))
+
     if (name and gender and id_number and phone and code) is None:
         return jsonify(status='fail', msg='参数缺失，注册失败')
 
@@ -52,14 +51,19 @@ def register():
     db.session.add(curr_user)
     db.session.commit()
     login_user(curr_user)
-    user_data = {
+    love_status_map = {
+        User.LOVE_STATUS_SINGLE: '单身中',
+        User.LOVE_STATUS_LOVER: '恋爱中',
+        User.LOVER_STATUS_COUPLE: '婚姻中'
+    }
+    data = {
         'status': 'success',
         'name': curr_user.name,
         'gender': '女' if curr_user.gender else '男',
-        'love_status': curr_user.love_status,
+        'love_status': love_status_map.get(curr_user.love_status),
         'balance': curr_user.balance
     }
-    return jsonify(status='success', user=user_data, msg='注册成功')
+    return jsonify(status='success', user=data, msg='注册成功')
 
 
 @main.route('/login/', methods=['POST'])
@@ -96,14 +100,37 @@ def login():
     # curr_user = User.query.filter_by(id=2).first()
     # login_user(curr_user)
 
-    user_data = {
+    love_status_map = {
+        User.LOVE_STATUS_SINGLE: '单身中',
+        User.LOVE_STATUS_LOVER: '恋爱中',
+        User.LOVER_STATUS_COUPLE: '婚姻中'
+    }
+    data = {
         'status': 'success',
         'name': curr_user.name,
         'gender': '女' if curr_user.gender else '男',
-        'love_status': curr_user.love_status,
+        'love_status': love_status_map.get(curr_user.love_status),
         'balance': curr_user.balance
     }
-    return jsonify(status='success', user=user_data, msg='登陆成功')
+    return jsonify(status='success', user=data, msg='登陆成功')
+
+
+@main.route('/user/data/', methods=['POST'])
+def user_data():
+    love_status_map = {
+        User.LOVE_STATUS_SINGLE: '单身中',
+        User.LOVE_STATUS_LOVER: '恋爱中',
+        User.LOVER_STATUS_COUPLE: '婚姻中'
+    }
+
+    data = {
+        'status': 'success',
+        'name': current_user.name,
+        'gender': '女' if current_user.gender else '男',
+        'love_status': love_status_map.get(current_user.love_status),
+        'balance': current_user.balance
+    }
+    return jsonify(data)
 
 
 @main.route('/pair/lock/apply/', methods=['POST'])
@@ -151,8 +178,8 @@ def pair_lock_confirm():
     if pa.status == PairApplication.STATUS_APPROVE:
         pa.source.balance += 1
         pa.destination.balance += 1
-        pa.source.love_status = pa.relationship
-        pa.destination.love_status = pa.relationship
+        pa.source.love_status = pa.relationship + 1
+        pa.destination.love_status = pa.relationship + 1
 
         ur = UserRelationship(pa.source, pa.destination, pa.relationship)
         db.session.add(ur)
@@ -162,6 +189,7 @@ def pair_lock_confirm():
         t2 = Transaction(system_user, pa.destination, 1)
         db.session.add(t1)
         db.session.add(t2)
+        db.session.commit()
 
     # todo fix bug
     a = pa.source
@@ -483,7 +511,7 @@ def pair_query_confirm():
 
 # 用户查看自己历史的查询信息与被查询信息
 @main.route('/pair/query/history/', methods=['POST'])
-def pair_query_histoy():
+def pair_query_history():
     data = {}
     qa_list_source = []
     qa_list_destination = []
@@ -507,7 +535,7 @@ def pair_query_histoy():
     return jsonify(data)
 
 
-@main.route('/close', methods=['POST'])
+@main.route('/close/', methods=['POST'])
 def close():
     current_user.close = True
     db.session.commit()

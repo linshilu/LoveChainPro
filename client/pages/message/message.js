@@ -5,10 +5,9 @@ Page({
     data: {
         message: []
     },
-
     onLoad: function (options) {
         wx.request({
-            url: app.globalData.host +'/list/',
+            url: app.globalData.host + '/message/list/',
             method: 'POST',
             header: { 'cookie': app.globalData.cookie },
             data: {},

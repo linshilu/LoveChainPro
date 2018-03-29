@@ -11,11 +11,10 @@ Page({
         wx.request({
             url: app.globalData.host + '/pair_query/apply/',
             method: 'POST',
-            data:
-            e.detail.value
-            ,
+            data: e.detail.value,
             header: {
-                'content-type': 'application/x-www-form-urlencoded' // 默认值
+                'content-type': 'application/x-www-form-urlencoded', // 默认值
+                'cookie': app.globalData.cookie
             },
             success: function (res) {
                 console.log(res.data)

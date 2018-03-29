@@ -12,7 +12,7 @@
             </view>
             <block wx:if="{{msg.type == 1 || msg.type == 3}}">
                 <view style='display: flex;flex-direction: row;'>
-                    <button type="warn" bindtap="confirmModel" id='refuse'>{{msg.type}}拒绝</button>
+                    <button type="warn" bindtap="confirmModel" id='refuse'>拒绝</button>
                     <button type="primary" bindtap="confirmModel" id='confirm'>确定</button>
                 </view>
             </block>
